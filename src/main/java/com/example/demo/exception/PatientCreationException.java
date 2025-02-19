@@ -1,0 +1,7 @@
+package com.example.demo.exception;
+
+public class PatientCreationException extends RuntimeException {
+    public PatientCreationException(String message) {
+        super(message);
+    }
+}
