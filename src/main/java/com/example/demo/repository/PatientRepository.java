@@ -63,6 +63,6 @@ public class PatientRepository {
         patientToUpdate.setLastName(newPatientData.getLastName());
         patientToUpdate.setPhoneNumber(newPatientData.getPhoneNumber());
         patientToUpdate.setBirthday(newPatientData.getBirthday());
-        return getPatient(email);
+        return getPatient(newPatientData.getEmail());
     }
 }
