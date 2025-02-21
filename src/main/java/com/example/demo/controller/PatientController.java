@@ -26,6 +26,7 @@ public class PatientController {
         return patientService.getPatient(email);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Patient createPatient(@RequestBody Patient patient) {
         return patientService.createPatient(patient);
@@ -38,7 +39,7 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public Patient editPatient(@PathVariable("email") String email, @RequestBody Patient newPatientInfo) {
-        return patientService.editPatient(email, newPatientInfo);
+    public Patient editPatient(@PathVariable("email") String email, @RequestBody Patient newPatientData) {
+        return patientService.editPatient(email, newPatientData);
     }
 }
