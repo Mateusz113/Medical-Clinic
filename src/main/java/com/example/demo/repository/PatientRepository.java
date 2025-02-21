@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
-import com.example.demo.exception.PatientOperationException;
+import com.example.demo.exception.PatientAlreadyExistsException;
+import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.model.Patient;
 import org.springframework.stereotype.Repository;
 
@@ -20,26 +21,23 @@ public class PatientRepository {
     }
 
     public Patient getPatient(String email) {
-        return patients.stream()
-                .filter(patient -> patient.getEmail().equals(email))
-                .findFirst()
-                .map(patient -> new Patient(
-                        patient.getEmail(),
-                        patient.getPassword(),
-                        patient.getIdCardNo(),
-                        patient.getFirstName(),
-                        patient.getLastName(),
-                        patient.getPhoneNumber(),
-                        patient.getBirthday()
-                ))
-                .orElseThrow(() -> new PatientOperationException("Could not retrieve patient. Patient with given email does not exist."));
+        Patient existingPatient = getPatientReference(email);
+        return new Patient(
+                existingPatient.getEmail(),
+                existingPatient.getPassword(),
+                existingPatient.getIdCardNo(),
+                existingPatient.getFirstName(),
+                existingPatient.getLastName(),
+                existingPatient.getPhoneNumber(),
+                existingPatient.getBirthday()
+        );
     }
 
     public Patient addPatient(Patient patient) {
         boolean emailIsAvailable = patients.stream()
                 .noneMatch(existingPatient -> patient.getEmail().equals(existingPatient.getEmail()));
         if (!emailIsAvailable) {
-            throw new PatientOperationException("Could not create a new patient. Patient with given email already exists.");
+            throw new PatientAlreadyExistsException("Patient with given email already exists.");
         }
         patients.add(patient);
         return patient;
@@ -47,15 +45,12 @@ public class PatientRepository {
 
     public void deletePatient(String email) {
         if (!patients.removeIf(patient -> patient.getEmail().equals(email))) {
-            throw new PatientOperationException("Could not delete patient. Patient with given email does not exist.");
+            throw new PatientNotFoundException("Patient with given email does not exist.");
         }
     }
 
     public Patient updatePatient(String email, Patient newPatientData) {
-        Patient patientToUpdate = patients.stream()
-                .filter(patient -> patient.getEmail().equals(email))
-                .findFirst()
-                .orElseThrow(() -> new PatientOperationException("Could not edit patient. Patient with given email does not exist."));
+        Patient patientToUpdate = getPatientReference(email);
         patientToUpdate.setEmail(newPatientData.getEmail());
         patientToUpdate.setPassword(newPatientData.getPassword());
         patientToUpdate.setIdCardNo(newPatientData.getIdCardNo());
@@ -64,5 +59,12 @@ public class PatientRepository {
         patientToUpdate.setPhoneNumber(newPatientData.getPhoneNumber());
         patientToUpdate.setBirthday(newPatientData.getBirthday());
         return getPatient(newPatientData.getEmail());
+    }
+
+    private Patient getPatientReference(String email) {
+        return patients.stream()
+                .filter(patient -> patient.getEmail().equals(email))
+                .findFirst()
+                .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist."));
     }
 }
