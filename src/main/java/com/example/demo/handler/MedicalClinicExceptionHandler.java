@@ -11,7 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class MedicalClinicExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(exception = PatientNotFoundException.class)
     public ResponseEntity<Object> handlePatientNotFoundException(RuntimeException ex, WebRequest request) {
         String body = ex.getMessage();
