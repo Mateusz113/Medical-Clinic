@@ -1,7 +1,11 @@
 package com.example.demo.exception;
 
-public class PatientAlreadyExistsException extends RuntimeException {
-    public PatientAlreadyExistsException(String message) {
-        super(message);
+import org.springframework.http.HttpStatus;
+
+import java.time.OffsetDateTime;
+
+public class PatientAlreadyExistsException extends WebException {
+    public PatientAlreadyExistsException(String message, OffsetDateTime date) {
+        super(message, HttpStatus.CONFLICT, date);
     }
 }
