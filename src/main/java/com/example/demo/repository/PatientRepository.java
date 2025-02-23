@@ -5,6 +5,7 @@ import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.model.Patient;
 import org.springframework.stereotype.Repository;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class PatientRepository {
         boolean emailIsAvailable = patients.stream()
                 .noneMatch(existingPatient -> patient.getEmail().equals(existingPatient.getEmail()));
         if (!emailIsAvailable) {
-            throw new PatientAlreadyExistsException("Patient with given email already exists.");
+            throw new PatientAlreadyExistsException("Patient with email: %s already exists".formatted(patient.getEmail()), OffsetDateTime.now());
         }
         patients.add(patient);
         return patient;
@@ -45,7 +46,7 @@ public class PatientRepository {
 
     public void deletePatient(String email) {
         if (!patients.removeIf(patient -> patient.getEmail().equals(email))) {
-            throw new PatientNotFoundException("Patient with given email does not exist.");
+            throw new PatientNotFoundException("Patient with email: %s does not exist".formatted(email), OffsetDateTime.now());
         }
     }
 
@@ -65,6 +66,6 @@ public class PatientRepository {
         return patients.stream()
                 .filter(patient -> patient.getEmail().equals(email))
                 .findFirst()
-                .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist."));
+                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist".formatted(email), OffsetDateTime.now()));
     }
 }
