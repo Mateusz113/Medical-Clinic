@@ -1,9 +1,11 @@
 package com.example.demo.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.time.OffsetDateTime;
 
+@Getter
 public abstract class WebException extends RuntimeException {
     private final HttpStatus statusCode;
     private final OffsetDateTime date;
@@ -12,13 +14,5 @@ public abstract class WebException extends RuntimeException {
         super(message);
         this.statusCode = statusCode;
         this.date = date;
-    }
-
-    public HttpStatus getStatusCode() {
-        return statusCode;
-    }
-
-    public OffsetDateTime getDate() {
-        return date;
     }
 }

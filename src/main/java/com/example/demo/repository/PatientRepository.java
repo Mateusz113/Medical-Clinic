@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.exception.PatientAlreadyExistsException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.model.Patient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -10,12 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class PatientRepository {
     private final List<Patient> patients;
-
-    public PatientRepository() {
-        patients = new ArrayList<>();
-    }
 
     public List<Patient> getAllPatients() {
         return new ArrayList<>(patients);
