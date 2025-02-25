@@ -63,9 +63,6 @@ public class PatientRepository {
 
     public Patient updatePatientPassword(String email, String password) {
         Patient patientToUpdate = getPatientReference(email);
-        if (password == null) {
-            throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
-        }
         patientToUpdate.setPassword(password);
         return getPatient(email);
     }
