@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.PasswordChangeFrom;
 import com.example.demo.model.Patient;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,7 +52,7 @@ public class PatientController {
     }
 
     @PatchMapping("/{email}/password")
-    public Patient editPatientPassword(@PathVariable("email") String email, @RequestParam String password) {
-        return patientService.editPatientPassword(email, password);
+    public Patient editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeFrom passwordChangeFrom) {
+        return patientService.editPatientPassword(email, passwordChangeFrom.password());
     }
 }
