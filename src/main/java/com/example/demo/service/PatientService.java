@@ -23,6 +23,9 @@ public class PatientService {
     }
 
     public Patient createPatient(Patient patient) {
+        if (isAnyPatientFieldNull(patient)) {
+            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
+        }
         return patientRepository.addPatient(patient);
     }
 
@@ -31,6 +34,9 @@ public class PatientService {
     }
 
     public Patient editPatient(String email, Patient newPatientData) {
+        if (isAnyPatientFieldNull(newPatientData)) {
+            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
+        }
         return patientRepository.updatePatient(email, newPatientData);
     }
 
@@ -39,5 +45,15 @@ public class PatientService {
             throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
         }
         return patientRepository.updatePatientPassword(email, password);
+    }
+
+    private boolean isAnyPatientFieldNull(Patient patientData) {
+        return patientData.getEmail() == null
+                || patientData.getPassword() == null
+                || patientData.getIdCardNo() == null
+                || patientData.getFirstName() == null
+                || patientData.getLastName() == null
+                || patientData.getPhoneNumber() == null
+                || patientData.getBirthday() == null;
     }
 }
