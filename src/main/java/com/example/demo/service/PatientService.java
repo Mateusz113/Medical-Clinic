@@ -31,4 +31,8 @@ public class PatientService {
     public Patient editPatient(String email, Patient newPatientData) {
         return patientRepository.updatePatient(email, newPatientData);
     }
+
+    public Patient editPatientPassword(String email, String password) {
+        return patientRepository.updatePatientPassword(email, password);
+    }
 }
