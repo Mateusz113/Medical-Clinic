@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.exception.PatientAlreadyExistsException;
+import com.example.demo.exception.PatientIllegalArgumentException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.model.Patient;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,15 @@ public class PatientRepository {
         patientToUpdate.setPhoneNumber(newPatientData.getPhoneNumber());
         patientToUpdate.setBirthday(newPatientData.getBirthday());
         return getPatient(newPatientData.getEmail());
+    }
+
+    public Patient updatePatientPassword(String email, String password) {
+        Patient patientToUpdate = getPatientReference(email);
+        if (password == null) {
+            throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
+        }
+        patientToUpdate.setPassword(password);
+        return getPatient(email);
     }
 
     private Patient getPatientReference(String email) {
