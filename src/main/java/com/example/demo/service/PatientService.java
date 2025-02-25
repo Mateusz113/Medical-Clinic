@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.PatientIllegalArgumentException;
 import com.example.demo.model.Patient;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -30,5 +32,12 @@ public class PatientService {
 
     public Patient editPatient(String email, Patient newPatientData) {
         return patientRepository.updatePatient(email, newPatientData);
+    }
+
+    public Patient editPatientPassword(String email, String password) {
+        if (password == null) {
+            throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
+        }
+        return patientRepository.updatePatientPassword(email, password);
     }
 }
