@@ -51,6 +51,9 @@ public class PatientRepository {
 
     public Patient updatePatient(String email, Patient newPatientData) {
         Patient patientToUpdate = getPatientReference(email);
+        if (!patientToUpdate.getIdCardNo().equals(newPatientData.getIdCardNo())) {
+            throw new PatientIllegalArgumentException("ID card number cannot be changed.", OffsetDateTime.now());
+        }
         patientToUpdate.setEmail(newPatientData.getEmail());
         patientToUpdate.setPassword(newPatientData.getPassword());
         patientToUpdate.setIdCardNo(newPatientData.getIdCardNo());
