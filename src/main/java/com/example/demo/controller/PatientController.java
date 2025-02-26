@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.PasswordChangeFrom;
+import com.example.demo.model.PasswordChangeForm;
 import com.example.demo.model.Patient;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class PatientController {
     }
 
     @PatchMapping("/{email}/password")
-    public Patient editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeFrom passwordChangeFrom) {
-        return patientService.editPatientPassword(email, passwordChangeFrom.password());
+    public Patient editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeForm passwordChangeForm) {
+        return patientService.editPatientPassword(email, passwordChangeForm.password());
     }
 }
