@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.PatientIllegalArgumentException;
+import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.model.Patient;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ public class PatientService {
     }
 
     public Patient getPatient(String email) {
-        return patientRepository.getPatient(email);
+        return patientRepository.getPatient(email)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
     }
 
     public Patient createPatient(Patient patient) {
@@ -30,7 +32,9 @@ public class PatientService {
     }
 
     public void deletePatient(String email) {
-        patientRepository.deletePatient(email);
+        if (!patientRepository.deletePatient(email)) {
+            throw new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now());
+        }
     }
 
     public Patient editPatient(String email, Patient newPatientData) {
