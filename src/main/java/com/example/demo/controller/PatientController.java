@@ -1,7 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.FullPatientDataDTO;
 import com.example.demo.model.PasswordChangeForm;
-import com.example.demo.model.Patient;
+import com.example.demo.model.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,19 +26,19 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping
-    public List<Patient> getPatients() {
+    public List<PatientDTO> getPatients() {
         return patientService.getAllPatients();
     }
 
     @GetMapping("/{email}")
-    public Patient getPatient(@PathVariable("email") String email) {
+    public PatientDTO getPatient(@PathVariable("email") String email) {
         return patientService.getPatient(email);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Patient createPatient(@RequestBody Patient patient) {
-        return patientService.createPatient(patient);
+    public PatientDTO createPatient(@RequestBody FullPatientDataDTO patientData) {
+        return patientService.createPatient(patientData);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -47,12 +48,12 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public Patient editPatient(@PathVariable("email") String email, @RequestBody Patient newPatientData) {
-        return patientService.editPatient(email, newPatientData);
+    public PatientDTO editPatient(@PathVariable("email") String email, @RequestBody FullPatientDataDTO patientData) {
+        return patientService.editPatient(email, patientData);
     }
 
     @PatchMapping("/{email}/password")
-    public Patient editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeForm passwordChangeForm) {
+    public PatientDTO editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeForm passwordChangeForm) {
         return patientService.editPatientPassword(email, passwordChangeForm.password());
     }
 }
