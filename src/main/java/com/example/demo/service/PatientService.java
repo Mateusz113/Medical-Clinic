@@ -1,59 +1,69 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.PatientIllegalArgumentException;
-import com.example.demo.model.Patient;
+import com.example.demo.exception.PatientNotFoundException;
+import com.example.demo.mapper.PatientMapper;
+import com.example.demo.model.FullPatientDataDTO;
+import com.example.demo.model.PatientDTO;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
-    public List<Patient> getAllPatients() {
-        return patientRepository.getAllPatients();
+    public List<PatientDTO> getAllPatients() {
+        return patientRepository.getAllPatients().stream()
+                .map(patientMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public Patient getPatient(String email) {
-        return patientRepository.getPatient(email);
+    public PatientDTO getPatient(String email) {
+        return patientMapper.toDTO(patientRepository.getPatient(email)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now())));
     }
 
-    public Patient createPatient(Patient patient) {
-        if (isAnyPatientFieldNull(patient)) {
+    public PatientDTO createPatient(FullPatientDataDTO patientData) {
+        if (isAnyPatientFieldNull(patientData)) {
             throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
         }
-        return patientRepository.addPatient(patient);
+        return patientMapper.toDTO(patientRepository.addPatient(patientMapper.toEntity(patientData)));
     }
 
     public void deletePatient(String email) {
-        patientRepository.deletePatient(email);
+        if (!patientRepository.deletePatient(email)) {
+            throw new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now());
+        }
     }
 
-    public Patient editPatient(String email, Patient newPatientData) {
-        if (isAnyPatientFieldNull(newPatientData)) {
+    public PatientDTO editPatient(String email, FullPatientDataDTO patientData) {
+        if (isAnyPatientFieldNull(patientData)) {
             throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
         }
-        return patientRepository.updatePatient(email, newPatientData);
+        return patientMapper.toDTO(patientRepository.updatePatient(email, patientMapper.toEntity(patientData)));
     }
 
-    public Patient editPatientPassword(String email, String password) {
+    public PatientDTO editPatientPassword(String email, String password) {
         if (password == null) {
             throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
         }
-        return patientRepository.updatePatientPassword(email, password);
+        return patientMapper.toDTO(patientRepository.updatePatientPassword(email, password));
     }
 
-    private boolean isAnyPatientFieldNull(Patient patientData) {
-        return patientData.getEmail() == null
-                || patientData.getPassword() == null
-                || patientData.getIdCardNo() == null
-                || patientData.getFirstName() == null
-                || patientData.getLastName() == null
-                || patientData.getPhoneNumber() == null
-                || patientData.getBirthday() == null;
+    private boolean isAnyPatientFieldNull(FullPatientDataDTO patientData) {
+        return patientData.email() == null
+                || patientData.password() == null
+                || patientData.idCardNo() == null
+                || patientData.firstName() == null
+                || patientData.lastName() == null
+                || patientData.phoneNumber() == null
+                || patientData.birthday() == null;
     }
 }
