@@ -20,14 +20,13 @@ public class PatientService {
     private final PatientMapper patientMapper;
 
     public List<PatientDTO> getAllPatients() {
-        return patientRepository.getAllPatients()
-                .stream()
-                .map(patientMapper::patientToDTO)
+        return patientRepository.getAllPatients().stream()
+                .map(patientMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public PatientDTO getPatient(String email) {
-        return patientMapper.patientToDTO(patientRepository.getPatient(email)
+        return patientMapper.toDTO(patientRepository.getPatient(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now())));
     }
 
@@ -35,7 +34,7 @@ public class PatientService {
         if (isAnyPatientFieldNull(patientData)) {
             throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
         }
-        return patientMapper.patientToDTO(patientRepository.addPatient(patientMapper.fullPatientDataDTOToPatient(patientData)));
+        return patientMapper.toDTO(patientRepository.addPatient(patientMapper.toEntity(patientData)));
     }
 
     public void deletePatient(String email) {
@@ -48,14 +47,14 @@ public class PatientService {
         if (isAnyPatientFieldNull(patientData)) {
             throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
         }
-        return patientMapper.patientToDTO(patientRepository.updatePatient(email, patientMapper.fullPatientDataDTOToPatient(patientData)));
+        return patientMapper.toDTO(patientRepository.updatePatient(email, patientMapper.toEntity(patientData)));
     }
 
     public PatientDTO editPatientPassword(String email, String password) {
         if (password == null) {
             throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
         }
-        return patientMapper.patientToDTO(patientRepository.updatePatientPassword(email, password));
+        return patientMapper.toDTO(patientRepository.updatePatientPassword(email, password));
     }
 
     private boolean isAnyPatientFieldNull(FullPatientDataDTO patientData) {
