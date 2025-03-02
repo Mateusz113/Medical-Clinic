@@ -15,4 +15,8 @@ public class Patient {
     private String lastName;
     private String phoneNumber;
     private LocalDate birthday;
+
+    public Patient copy() {
+        return new Patient(email, password, idCardNo, firstName, lastName, phoneNumber, birthday);
+    }
 }
