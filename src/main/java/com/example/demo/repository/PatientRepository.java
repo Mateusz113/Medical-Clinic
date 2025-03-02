@@ -24,17 +24,7 @@ public class PatientRepository {
 
     public Optional<Patient> getPatient(String email) {
         Optional<Patient> existingPatient = getPatientReference(email);
-        return existingPatient.map(patient ->
-                new Patient(
-                        patient.getEmail(),
-                        patient.getPassword(),
-                        patient.getIdCardNo(),
-                        patient.getFirstName(),
-                        patient.getLastName(),
-                        patient.getPhoneNumber(),
-                        patient.getBirthday()
-                )
-        );
+        return existingPatient.map(Patient::copy);
     }
 
     public Patient addPatient(Patient patient) {
@@ -69,14 +59,14 @@ public class PatientRepository {
         patientToUpdate.setLastName(newPatientData.getLastName());
         patientToUpdate.setPhoneNumber(newPatientData.getPhoneNumber());
         patientToUpdate.setBirthday(newPatientData.getBirthday());
-        return getPatient(newPatientData.getEmail()).get();
+        return patientToUpdate.copy();
     }
 
     public Patient updatePatientPassword(String email, String password) {
         Patient patientToUpdate = getPatientReference(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
         patientToUpdate.setPassword(password);
-        return getPatient(email).get();
+        return patientToUpdate.copy();
     }
 
     private Optional<Patient> getPatientReference(String email) {
