@@ -11,13 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
-    Optional<Patient> getPatientByEmail(String email);
+    Optional<Patient> findByEmail(String email);
 
-    int deletePatientByEmail(String email);
+    int deleteByEmail(String email);
 
     @Modifying
     @Query("""
-            update PATIENTS p
+            update PATIENTS pó
             set
             p.email = :#{#patientData.email},
             p.password = :#{#patientData.password},
@@ -27,9 +27,9 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             p.birthday = :#{#patientData.birthday}
             where lower(p.email) = lower(:email)
             """)
-    int updatePatient(@Param("email") String email, @Param("patientData") Patient patientData);
+    int update(@Param("email") String email, @Param("patientData") Patient patientData);
 
     @Modifying
     @Query("update PATIENTS p set p.password = :password where lower(p.email) = lower(:email) ")
-    int updatePatientPassword(@Param("email") String email, @Param("password") String password);
+    int updatePassword(@Param("email") String email, @Param("password") String password);
 }
