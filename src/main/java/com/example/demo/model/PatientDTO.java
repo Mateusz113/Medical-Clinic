@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Builder
 public record PatientDTO(
+        Long id,
         String email,
         String idCardNo,
         String firstName,
