@@ -9,8 +9,6 @@ import com.example.demo.model.Patient;
 import com.example.demo.model.PatientDTO;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-@EnableJpaRepositories(basePackages = "com.example.demo.repository")
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
@@ -33,48 +30,32 @@ public class PatientService {
     }
 
     public PatientDTO getPatient(String email) {
-        return patientMapper.toDTO(patientRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now())));
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
+        return patientMapper.toDTO(patient);
     }
 
     @Transactional
     public PatientDTO createPatient(FullPatientDataDTO patientData) {
-        if (isAnyPatientFieldNull(patientData)) {
-            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
-        }
-        try {
-            return patientMapper.toDTO(patientRepository.save(patientMapper.toEntity(patientData)));
-        } catch (DataIntegrityViolationException e) {
-            throw new PatientAlreadyExistsException("Patient with email: %s already exists".formatted(patientData.email()), OffsetDateTime.now());
-        }
+        validateFullPatientDataDTO(patientData);
+        validateEmailAvailability(patientData.email());
+        Patient patient = patientRepository.save(patientMapper.toEntity(patientData));
+        return patientMapper.toDTO(patient);
     }
 
     @Transactional
     public void deletePatient(String email) {
-        if (patientRepository.deleteByEmail(email) == 0) {
-            throw new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now());
-        }
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
+        patientRepository.delete(patient);
     }
 
     @Transactional
     public PatientDTO editPatient(String email, FullPatientDataDTO patientData) {
-        if (isAnyPatientFieldNull(patientData)) {
-            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
-        }
-        if (patientRepository.existsByEmail(patientData.email()) && !Objects.equals(email, patientData.email())) {
-            throw new PatientAlreadyExistsException("Patient with email: %s already exists".formatted(patientData.email()), OffsetDateTime.now());
-        }
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email %s does not exist.".formatted(email), OffsetDateTime.now()));
-        if (!patient.getIdCardNo().equals(patientData.idCardNo())) {
-            throw new PatientIllegalArgumentException("ID card number cannot be changed.", OffsetDateTime.now());
-        }
-        patient.setEmail(patientData.email());
-        patient.setPassword(patientData.password());
-        patient.setFirstName(patientData.firstName());
-        patient.setLastName(patientData.lastName());
-        patient.setPhoneNumber(patientData.phoneNumber());
-        patient.setBirthday(patientData.birthday());
+        validatePatientEdit(patient, patientData);
+        patient.update(patientData);
         patientRepository.save(patient);
         return patientMapper.toDTO(patient);
     }
@@ -91,13 +72,31 @@ public class PatientService {
         return patientMapper.toDTO(patient);
     }
 
-    private boolean isAnyPatientFieldNull(FullPatientDataDTO patientData) {
-        return patientData.email() == null
+    private void validateFullPatientDataDTO(FullPatientDataDTO patientData) {
+        if (patientData.email() == null
                 || patientData.password() == null
                 || patientData.idCardNo() == null
                 || patientData.firstName() == null
                 || patientData.lastName() == null
                 || patientData.phoneNumber() == null
-                || patientData.birthday() == null;
+                || patientData.birthday() == null) {
+            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
+        }
+    }
+
+    private void validateEmailAvailability(String email) {
+        if (patientRepository.existsByEmail(email)) {
+            throw new PatientAlreadyExistsException("Patient with email: %s already exists.".formatted(email), OffsetDateTime.now());
+        }
+    }
+
+    private void validatePatientEdit(Patient patient, FullPatientDataDTO patientData) {
+        validateFullPatientDataDTO(patientData);
+        if (patientRepository.existsByEmail(patientData.email()) && !Objects.equals(patient.getEmail(), patientData.email())) {
+            throw new PatientAlreadyExistsException("Patient with email: %s already exists.".formatted(patientData.email()), OffsetDateTime.now());
+        }
+        if (!patient.getIdCardNo().equals(patientData.idCardNo())) {
+            throw new PatientIllegalArgumentException("ID card number cannot be changed.", OffsetDateTime.now());
+        }
     }
 }
