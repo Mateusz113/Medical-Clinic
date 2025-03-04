@@ -32,4 +32,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Modifying
     @Query("update PATIENTS p set p.password = :password where lower(p.email) = lower(:email) ")
     int updatePassword(@Param("email") String email, @Param("password") String password);
+
+    boolean existsByEmail(String email);
 }
