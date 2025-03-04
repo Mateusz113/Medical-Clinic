@@ -17,7 +17,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Modifying
     @Query("""
-            update PATIENTS pó
+            update PATIENTS p
             set
             p.email = :#{#patientData.email},
             p.password = :#{#patientData.password},
