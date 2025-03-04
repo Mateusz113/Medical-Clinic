@@ -1,13 +1,27 @@
 package com.example.demo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
+@Entity(name = "PATIENTS")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 public class Patient {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String email;
     private String password;
     private String idCardNo;
@@ -15,8 +29,4 @@ public class Patient {
     private String lastName;
     private String phoneNumber;
     private LocalDate birthday;
-
-    public Patient copy() {
-        return new Patient(email, password, idCardNo, firstName, lastName, phoneNumber, birthday);
-    }
 }
