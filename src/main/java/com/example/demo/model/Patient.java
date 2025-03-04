@@ -29,4 +29,14 @@ public class Patient {
     private String lastName;
     private String phoneNumber;
     private LocalDate birthday;
+
+    public void update(FullPatientDataDTO patientData) {
+        this.email = patientData.email();
+        this.password = patientData.password();
+        this.idCardNo = patientData.idCardNo();
+        this.firstName = patientData.firstName();
+        this.lastName = patientData.lastName();
+        this.phoneNumber = patientData.phoneNumber();
+        this.birthday = patientData.birthday();
+    }
 }
