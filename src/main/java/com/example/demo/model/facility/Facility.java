@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,12 +30,7 @@ public class Facility {
     private String zipCode;
     private String street;
     private String buildingNumber;
-    @ManyToMany
-    @JoinTable(
-            name = "FACILITIES_DOCTORS",
-            joinColumns = @JoinColumn(name = "doctor_id"),
-            inverseJoinColumns = @JoinColumn(name = "facility_id")
-    )
+    @ManyToMany(mappedBy = "facilities")
     private Set<Doctor> doctors;
 
     public void update(FullFacilityDataDTO facilityData) {
@@ -46,14 +39,6 @@ public class Facility {
         this.zipCode = facilityData.zipCode();
         this.street = facilityData.street();
         this.buildingNumber = facilityData.buildingNumber();
-    }
-
-    public boolean addDoctor(Doctor doctor) {
-        return doctors.add(doctor);
-    }
-
-    public boolean removeDoctor(Doctor doctor) {
-        return doctors.remove(doctor);
     }
 
     @Override
