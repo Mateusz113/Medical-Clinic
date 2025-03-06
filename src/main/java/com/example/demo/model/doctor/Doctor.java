@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +32,12 @@ public class Doctor {
     private String firstName;
     private String lastName;
     private String specialization;
-    @ManyToMany(mappedBy = "doctors")
+    @ManyToMany
+    @JoinTable(
+            name = "FACILITIES_DOCTORS",
+            joinColumns = @JoinColumn(name = "facility_id"),
+            inverseJoinColumns = @JoinColumn(name = "doctor_id")
+    )
     private Set<Facility> facilities;
 
     public void update(FullDoctorDataDTO doctorData) {
