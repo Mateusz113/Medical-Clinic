@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.FullPatientDataDTO;
 import com.example.demo.model.PasswordChangeForm;
-import com.example.demo.model.PatientDTO;
+import com.example.demo.model.patient.FullPatientDataDTO;
+import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
