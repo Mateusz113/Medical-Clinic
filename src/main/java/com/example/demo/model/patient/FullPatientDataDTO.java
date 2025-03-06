@@ -1,13 +1,13 @@
-package com.example.demo.model;
+package com.example.demo.model.patient;
 
 import lombok.Builder;
 
 import java.time.LocalDate;
 
 @Builder
-public record PatientDTO(
-        Long id,
+public record FullPatientDataDTO(
         String email,
+        String password,
         String idCardNo,
         String firstName,
         String lastName,
