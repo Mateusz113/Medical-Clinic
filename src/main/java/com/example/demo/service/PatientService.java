@@ -1,12 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.exception.PatientAlreadyExistsException;
-import com.example.demo.exception.PatientIllegalArgumentException;
-import com.example.demo.exception.PatientNotFoundException;
+import com.example.demo.exception.patient.PatientAlreadyExistsException;
+import com.example.demo.exception.patient.PatientIllegalArgumentException;
+import com.example.demo.exception.patient.PatientNotFoundException;
 import com.example.demo.mapper.PatientMapper;
-import com.example.demo.model.FullPatientDataDTO;
-import com.example.demo.model.Patient;
-import com.example.demo.model.PatientDTO;
+import com.example.demo.model.patient.FullPatientDataDTO;
+import com.example.demo.model.patient.Patient;
+import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class PatientService {
     public List<PatientDTO> getAllPatients() {
         return patientRepository.findAll().stream()
                 .map(patientMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PatientDTO getPatient(String email) {
