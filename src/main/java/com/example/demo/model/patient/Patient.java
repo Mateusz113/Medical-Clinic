@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity(name = "PATIENTS")
 @Getter
@@ -39,5 +40,17 @@ public class Patient {
         this.lastName = patientData.lastName();
         this.phoneNumber = patientData.phoneNumber();
         this.birthday = patientData.birthday();
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Patient patient)) return false;
+        return Objects.equals(getEmail(), patient.getEmail());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(getEmail());
     }
 }
