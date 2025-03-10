@@ -58,12 +58,12 @@ public class DoctorService {
 
     @Transactional
     public void addFacility(String email, Long id) {
-        updateReferencesSets(email, id, Doctor::addFacility);
+        updateFacilitiesSet(email, id, Doctor::addFacility);
     }
 
     @Transactional
     public void removeFacility(String email, Long id) {
-        updateReferencesSets(email, id, Doctor::removeFacility);
+        updateFacilitiesSet(email, id, Doctor::removeFacility);
     }
 
     @Transactional
@@ -72,9 +72,9 @@ public class DoctorService {
         doctorRepository.delete(doctor);
     }
 
-    private void updateReferencesSets(String doctorEmail,
-                                      Long facilityId,
-                                      BiFunction<Doctor, Facility, Boolean> facilitySetOperation) {
+    private void updateFacilitiesSet(String doctorEmail,
+                                     Long facilityId,
+                                     BiFunction<Doctor, Facility, Boolean> facilitySetOperation) {
         Doctor doctor = getDoctorWithEmail(doctorEmail);
         Facility facility = facilityRepository.findById(facilityId)
                 .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(facilityId), OffsetDateTime.now()));
