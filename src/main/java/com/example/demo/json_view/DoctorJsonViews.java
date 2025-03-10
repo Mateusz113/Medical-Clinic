@@ -4,6 +4,6 @@ public class DoctorJsonViews {
     public interface Partial {
     }
 
-    public interface Standalone extends FacilityJsonViews.Partial {
+    public interface Standalone extends Partial {
     }
 }
