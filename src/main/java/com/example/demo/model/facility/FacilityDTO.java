@@ -1,6 +1,6 @@
 package com.example.demo.model.facility;
 
-import com.example.demo.model.doctor.DoctorDataDTO;
+import com.example.demo.model.doctor.DoctorDTO;
 
 import java.util.Set;
 
@@ -11,6 +11,6 @@ public record FacilityDTO(
         String zipCode,
         String street,
         String buildingNumber,
-        Set<DoctorDataDTO> doctors
+        Set<DoctorDTO> doctors
 ) {
 }
