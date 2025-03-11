@@ -1,11 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.exception.doctor.DoctorIllegalArgumentException;
-import com.example.demo.json_view.DoctorJsonViews;
 import com.example.demo.model.doctor.DoctorDTO;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.service.DoctorService;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,25 +29,21 @@ public class DoctorController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    @JsonView(DoctorJsonViews.Partial.class)
     public DoctorDTO createDoctor(@RequestBody FullDoctorDataDTO doctorData) {
         return doctorService.createDoctor(doctorData);
     }
 
     @GetMapping
-    @JsonView(DoctorJsonViews.Partial.class)
     public List<DoctorDTO> getDoctors() {
         return doctorService.getDoctors();
     }
 
     @GetMapping("/{email}")
-    @JsonView(DoctorJsonViews.Partial.class)
     public DoctorDTO getDoctorByEmail(@PathVariable("email") String email) {
         return doctorService.getDoctorByEmail(email);
     }
 
     @PutMapping("/{email}")
-    @JsonView(DoctorJsonViews.Partial.class)
     public DoctorDTO editDoctor(@PathVariable("email") String email, @RequestBody FullDoctorDataDTO doctorData) {
         return doctorService.editDoctor(email, doctorData);
     }
