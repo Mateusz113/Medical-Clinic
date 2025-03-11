@@ -1,6 +1,7 @@
 package com.example.demo.model.facility;
 
 import com.example.demo.model.doctor.Doctor;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +31,7 @@ public class Facility {
     private String zipCode;
     private String street;
     private String buildingNumber;
-    @ManyToMany(mappedBy = "facilities")
+    @ManyToMany(mappedBy = "facilities", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Doctor> doctors = new HashSet<>();
 
     public void update(FullFacilityDataDTO facilityData) {
