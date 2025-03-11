@@ -1,30 +1,47 @@
 package com.example.demo.service;
 
-import com.example.demo.exception.facility.FacilityAlreadyExistsException;
-import com.example.demo.exception.facility.FacilityIllegalArgumentException;
+import com.example.demo.exception.doctor.DoctorIllegalArgumentException;
+import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.FacilityMapper;
+import com.example.demo.model.doctor.Doctor;
+import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FacilityDTO;
 import com.example.demo.model.facility.FullFacilityDataDTO;
+import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
+import com.example.demo.validator.FacilityValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class FacilityService {
     private final FacilityRepository facilityRepository;
+    private final DoctorRepository doctorRepository;
     private final FacilityMapper facilityMapper;
+    private final FacilityValidator facilityValidator;
 
     public FacilityDTO createFacility(FullFacilityDataDTO facilityData) {
-        validateFacilityCreation(facilityData);
-        Facility facility = facilityRepository.save(facilityMapper.toEntity(facilityData));
+        Facility facility = saveFacilityToDatabase(facilityData);
         return facilityMapper.toDTO(facility);
+    }
+
+    public List<FacilityDTO> createFacilities(List<FullFacilityDataDTO> facilityDataList) {
+        List<Facility> facilities = facilityDataList.stream()
+                .map(this::saveFacilityToDatabase)
+                .toList();
+        return facilities.stream()
+                .map(facilityMapper::toDTO)
+                .toList();
     }
 
     public List<FacilityDTO> getFacilities() {
@@ -40,7 +57,7 @@ public class FacilityService {
 
     public FacilityDTO editFacility(Long id, FullFacilityDataDTO facilityData) {
         Facility facility = getFacilityWithId(id);
-        validateFacilityEdit(facility, facilityData);
+        facilityValidator.validateFacilityEdit(facility, facilityData);
         facility.update(facilityData);
         facilityRepository.save(facility);
         return facilityMapper.toDTO(facility);
@@ -56,31 +73,34 @@ public class FacilityService {
                 .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(id), OffsetDateTime.now()));
     }
 
-    private void validateFacilityData(FullFacilityDataDTO facilityData) {
-        if (facilityData.name() == null
-                || facilityData.city() == null
-                || facilityData.zipCode() == null
-                || facilityData.street() == null
-                || facilityData.buildingNumber() == null) {
-            throw new FacilityIllegalArgumentException("There cannot be null fields in facility.", OffsetDateTime.now());
-        }
+    private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
+        Set<Doctor> existingDoctors = getExistingDoctors(facilityData);
+        facilityValidator.validateFacilityCreation(facilityData);
+        Facility facility = facilityMapper.toEntity(facilityData);
+        Set<Doctor> doctors = facility.getDoctors();
+        doctors.addAll(existingDoctors);
+        doctors.forEach((doctor -> doctor.addFacility(facility)));
+        return facilityRepository.save(facility);
     }
 
-    private void validateNameAvailability(String name) {
-        if (facilityRepository.existsByName(name)) {
-            throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(name), OffsetDateTime.now());
+    private Set<Doctor> getExistingDoctors(FullFacilityDataDTO facilityDataDTO) {
+        Set<Doctor> existingDoctors = new HashSet<>();
+        Iterator<FullDoctorDataDTO> iterator = facilityDataDTO.doctors().iterator();
+        while (iterator.hasNext()) {
+            FullDoctorDataDTO doctorData = iterator.next();
+            if (doctorRepository.existsByEmail(doctorData.email())) {
+                Doctor existingDoctor = doctorRepository.findByEmail(doctorData.email())
+                        .orElseThrow(() -> new DoctorNotFoundException("Doctor with email: %s does not exist.".formatted(doctorData.email()), OffsetDateTime.now()));
+                if (!Objects.equals(doctorData.firstName(), existingDoctor.getFirstName())
+                        || !Objects.equals(doctorData.lastName(), existingDoctor.getLastName())
+                        || !Objects.equals(doctorData.specialization(), existingDoctor.getSpecialization())
+                        || !Objects.equals(doctorData.password(), existingDoctor.getPassword())) {
+                    throw new DoctorIllegalArgumentException("Provided a doctor data with occupied email address and data that does not match persistence.", OffsetDateTime.now());
+                }
+                existingDoctors.add(existingDoctor);
+                iterator.remove();
+            }
         }
-    }
-
-    private void validateFacilityEdit(Facility facility, FullFacilityDataDTO facilityData) {
-        validateFacilityData(facilityData);
-        if (facilityRepository.existsByName(facilityData.name()) && !Objects.equals(facility.getName(), facilityData.name())) {
-            throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(facilityData.name()), OffsetDateTime.now());
-        }
-    }
-
-    private void validateFacilityCreation(FullFacilityDataDTO facilityData) {
-        validateFacilityData(facilityData);
-        validateNameAvailability(facilityData.name());
+        return existingDoctors;
     }
 }
