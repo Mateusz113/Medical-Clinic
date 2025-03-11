@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class Facility {
     private String street;
     private String buildingNumber;
     @ManyToMany(mappedBy = "facilities")
-    private Set<Doctor> doctors;
+    private Set<Doctor> doctors = new HashSet<>();
 
     public void update(FullFacilityDataDTO facilityData) {
         this.name = facilityData.name();

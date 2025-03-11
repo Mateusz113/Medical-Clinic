@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ public class Doctor {
             joinColumns = @JoinColumn(name = "facility_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id")
     )
-    private Set<Facility> facilities;
+    private Set<Facility> facilities = new HashSet<>();
 
     public void update(FullDoctorDataDTO doctorData) {
         this.email = doctorData.email();
