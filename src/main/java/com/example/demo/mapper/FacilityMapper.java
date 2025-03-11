@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.model.doctor.Doctor;
+import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.doctor.SimpleDoctorDTO;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FacilityDTO;
@@ -21,5 +22,9 @@ public interface FacilityMapper {
 
     default SimpleDoctorDTO getSimpleDoctorDTO(Doctor doctor) {
         return Mappers.getMapper(DoctorMapper.class).toSimpleDTO(doctor);
+    }
+
+    default Doctor getDoctor(FullDoctorDataDTO doctorData) {
+        return Mappers.getMapper(DoctorMapper.class).toEntity(doctorData);
     }
 }
