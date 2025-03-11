@@ -29,6 +29,12 @@ public class FacilityController {
         return facilityService.createFacility(facilityData);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/bulk")
+    public List<FacilityDTO> createFacility(@RequestBody List<FullFacilityDataDTO> facilitiesData) {
+        return facilityService.createFacilities(facilitiesData);
+    }
+
     @GetMapping
     public List<FacilityDTO> getFacilities() {
         return facilityService.getFacilities();
