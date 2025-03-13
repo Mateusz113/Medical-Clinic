@@ -1,7 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.exception.doctor.DoctorIllegalArgumentException;
-import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.FacilityMapper;
 import com.example.demo.model.doctor.Doctor;
@@ -14,13 +12,13 @@ import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.FacilityValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +28,13 @@ public class FacilityService {
     private final FacilityMapper facilityMapper;
     private final FacilityValidator facilityValidator;
 
+    @Transactional
     public FacilityDTO createFacility(FullFacilityDataDTO facilityData) {
         Facility facility = saveFacilityToDatabase(facilityData);
         return facilityMapper.toDTO(facility);
     }
 
+    @Transactional
     public List<FacilityDTO> createFacilities(List<FullFacilityDataDTO> facilityDataList) {
         List<Facility> facilities = facilityDataList.stream()
                 .map(this::saveFacilityToDatabase)
@@ -55,6 +55,7 @@ public class FacilityService {
         return facilityMapper.toDTO(facility);
     }
 
+    @Transactional
     public FacilityDTO editFacility(Long id, FullFacilityDataDTO facilityData) {
         Facility facility = getFacilityWithId(id);
         facilityValidator.validateFacilityEdit(facility, facilityData);
@@ -63,6 +64,7 @@ public class FacilityService {
         return facilityMapper.toDTO(facility);
     }
 
+    @Transactional
     public void deleteFacility(Long id) {
         Facility facility = getFacilityWithId(id);
         facilityRepository.delete(facility);
@@ -75,6 +77,7 @@ public class FacilityService {
 
     private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
         Set<Doctor> existingDoctors = getExistingDoctors(facilityData);
+        facilityData = filterNewDoctorData(facilityData, existingDoctors);
         facilityValidator.validateFacilityCreation(facilityData);
         Facility facility = facilityMapper.toEntity(facilityData);
         Set<Doctor> doctors = facility.getDoctors();
@@ -84,23 +87,26 @@ public class FacilityService {
     }
 
     private Set<Doctor> getExistingDoctors(FullFacilityDataDTO facilityDataDTO) {
-        Set<Doctor> existingDoctors = new HashSet<>();
-        Iterator<FullDoctorDataDTO> iterator = facilityDataDTO.doctors().iterator();
-        while (iterator.hasNext()) {
-            FullDoctorDataDTO doctorData = iterator.next();
-            if (doctorRepository.existsByEmail(doctorData.email())) {
-                Doctor existingDoctor = doctorRepository.findByEmail(doctorData.email())
-                        .orElseThrow(() -> new DoctorNotFoundException("Doctor with email: %s does not exist.".formatted(doctorData.email()), OffsetDateTime.now()));
-                if (!Objects.equals(doctorData.firstName(), existingDoctor.getFirstName())
-                        || !Objects.equals(doctorData.lastName(), existingDoctor.getLastName())
-                        || !Objects.equals(doctorData.specialization(), existingDoctor.getSpecialization())
-                        || !Objects.equals(doctorData.password(), existingDoctor.getPassword())) {
-                    throw new DoctorIllegalArgumentException("Provided a doctor data with occupied email address and data that does not match persistence.", OffsetDateTime.now());
-                }
-                existingDoctors.add(existingDoctor);
-                iterator.remove();
-            }
-        }
-        return existingDoctors;
+        List<String> requestDoctorEmails = facilityDataDTO.doctors().stream()
+                .map(FullDoctorDataDTO::email)
+                .toList();
+        return new HashSet<>(doctorRepository.findAllByEmails(requestDoctorEmails));
+    }
+
+    private FullFacilityDataDTO filterNewDoctorData(FullFacilityDataDTO facilityDataDTO, Set<Doctor> existingDoctors) {
+        List<String> existingDoctorEmails = existingDoctors.stream()
+                .map(Doctor::getEmail)
+                .toList();
+        Set<FullDoctorDataDTO> filteredNewDoctorData = facilityDataDTO.doctors().stream()
+                .filter(doctorData -> !existingDoctorEmails.contains(doctorData.email()))
+                .collect(Collectors.toSet());
+        return new FullFacilityDataDTO(
+                facilityDataDTO.name(),
+                facilityDataDTO.city(),
+                facilityDataDTO.zipCode(),
+                facilityDataDTO.street(),
+                facilityDataDTO.buildingNumber(),
+                filteredNewDoctorData
+        );
     }
 }
