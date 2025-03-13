@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.facility.FacilityNotFoundException;
+import com.example.demo.mapper.DoctorMapper;
 import com.example.demo.mapper.FacilityMapper;
+import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.facility.Facility;
@@ -11,7 +13,8 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.FacilityValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class FacilityService {
     private final DoctorRepository doctorRepository;
     private final FacilityMapper facilityMapper;
     private final FacilityValidator facilityValidator;
+    private final DoctorMapper doctorMapper;
 
     @Transactional
     public FacilityDTO createFacility(FullFacilityDataDTO facilityData) {
@@ -45,10 +49,14 @@ public class FacilityService {
                 .toList();
     }
 
-    public List<FacilityDTO> getFacilities(PageRequest pageRequest) {
-        return facilityRepository.findAll(pageRequest).stream()
-                .map(facilityMapper::toDTO)
-                .toList();
+    public PageableContentDto<FacilityDTO> getFacilities(Pageable pageable) {
+        Page<Facility> content = facilityRepository.findAll(pageable);
+        return PageableContentDto.<FacilityDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(facilityMapper::toDTO).toList())
+                .build();
     }
 
     public FacilityDTO getFacilityById(Long id) {
@@ -77,12 +85,12 @@ public class FacilityService {
     }
 
     private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
-        Set<Doctor> existingDoctors = getExistingDoctors(facilityData);
-        facilityData = filterNewDoctorData(facilityData, existingDoctors);
         facilityValidator.validateFacilityCreation(facilityData);
+        Set<Doctor> allDoctors = getExistingDoctors(facilityData);
+        addMissingDoctors(facilityData, allDoctors);
         Facility facility = facilityMapper.toEntity(facilityData);
         Set<Doctor> doctors = facility.getDoctors();
-        doctors.addAll(existingDoctors);
+        doctors.addAll(allDoctors);
         doctors.forEach((doctor -> doctor.addFacility(facility)));
         return facilityRepository.save(facility);
     }
@@ -94,20 +102,17 @@ public class FacilityService {
         return new HashSet<>(doctorRepository.findAllByEmails(requestDoctorEmails));
     }
 
-    private FullFacilityDataDTO filterNewDoctorData(FullFacilityDataDTO facilityDataDTO, Set<Doctor> existingDoctors) {
+    private void addMissingDoctors(FullFacilityDataDTO facilityDataDTO, Set<Doctor> existingDoctors) {
+        Set<FullDoctorDataDTO> missingDoctors = getMissingDoctors(existingDoctors, facilityDataDTO.doctors());
+        existingDoctors.addAll(doctorMapper.toEntities(missingDoctors));
+    }
+
+    private Set<FullDoctorDataDTO> getMissingDoctors(Set<Doctor> existingDoctors, Set<FullDoctorDataDTO> doctors) {
         List<String> existingDoctorEmails = existingDoctors.stream()
                 .map(Doctor::getEmail)
                 .toList();
-        Set<FullDoctorDataDTO> filteredNewDoctorData = facilityDataDTO.doctors().stream()
+        return doctors.stream()
                 .filter(doctorData -> !existingDoctorEmails.contains(doctorData.email()))
                 .collect(Collectors.toSet());
-        return new FullFacilityDataDTO(
-                facilityDataDTO.name(),
-                facilityDataDTO.city(),
-                facilityDataDTO.zipCode(),
-                facilityDataDTO.street(),
-                facilityDataDTO.buildingNumber(),
-                filteredNewDoctorData
-        );
     }
 }
