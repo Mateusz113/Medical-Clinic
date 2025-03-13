@@ -11,6 +11,7 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.FacilityValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,8 +45,8 @@ public class FacilityService {
                 .toList();
     }
 
-    public List<FacilityDTO> getFacilities() {
-        return facilityRepository.findAll().stream()
+    public List<FacilityDTO> getFacilities(PageRequest pageRequest) {
+        return facilityRepository.findAll(pageRequest).stream()
                 .map(facilityMapper::toDTO)
                 .toList();
     }

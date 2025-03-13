@@ -5,6 +5,7 @@ import com.example.demo.model.doctor.DoctorDTO;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.service.DoctorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +35,8 @@ public class DoctorController {
     }
 
     @GetMapping
-    public List<DoctorDTO> getDoctors() {
-        return doctorService.getDoctors();
+    public List<DoctorDTO> getDoctors(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return doctorService.getDoctors(PageRequest.of(page, size));
     }
 
     @GetMapping("/{email}")

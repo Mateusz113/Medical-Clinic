@@ -9,6 +9,7 @@ import com.example.demo.model.patient.Patient;
 import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +23,8 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
 
-    public List<PatientDTO> getAllPatients() {
-        return patientRepository.findAll().stream()
+    public List<PatientDTO> getAllPatients(PageRequest pageRequest) {
+        return patientRepository.findAll(pageRequest).stream()
                 .map(patientMapper::toDTO)
                 .toList();
     }

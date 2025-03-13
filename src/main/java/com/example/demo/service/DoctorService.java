@@ -12,6 +12,7 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.DoctorValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +35,8 @@ public class DoctorService {
         return doctorMapper.toDTO(doctor);
     }
 
-    public List<DoctorDTO> getDoctors() {
-        return doctorRepository.findAll().stream()
+    public List<DoctorDTO> getDoctors(PageRequest pageRequest) {
+        return doctorRepository.findAll(pageRequest).stream()
                 .map(doctorMapper::toDTO)
                 .toList();
     }
