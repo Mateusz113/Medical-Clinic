@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +21,10 @@ public class DoctorValidator {
     public void validateDoctorCreation(FullDoctorDataDTO doctorData) {
         validateDoctorData(doctorData);
         validateEmailAvailability(doctorData.email());
+    }
+
+    public void validateDoctorBulkCreation(Set<FullDoctorDataDTO> doctorData) {
+        doctorData.forEach(this::validateDoctorData);
     }
 
     public void validateDoctorEdit(Doctor doctor, FullDoctorDataDTO doctorData) {

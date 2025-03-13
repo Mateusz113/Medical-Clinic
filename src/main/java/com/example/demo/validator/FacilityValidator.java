@@ -20,7 +20,7 @@ public class FacilityValidator {
     public void validateFacilityCreation(FullFacilityDataDTO facilityData) {
         validateFacilityData(facilityData);
         validateNameAvailability(facilityData.name());
-        facilityData.doctors().forEach(doctorValidator::validateDoctorCreation);
+        doctorValidator.validateDoctorBulkCreation(facilityData.doctors());
     }
 
     public void validateFacilityEdit(Facility facility, FullFacilityDataDTO facilityData) {
