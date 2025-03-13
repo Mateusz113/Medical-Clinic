@@ -4,17 +4,18 @@ import com.example.demo.exception.patient.PatientAlreadyExistsException;
 import com.example.demo.exception.patient.PatientIllegalArgumentException;
 import com.example.demo.exception.patient.PatientNotFoundException;
 import com.example.demo.mapper.PatientMapper;
+import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.patient.FullPatientDataDTO;
 import com.example.demo.model.patient.Patient;
 import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -23,10 +24,14 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
 
-    public List<PatientDTO> getAllPatients(PageRequest pageRequest) {
-        return patientRepository.findAll(pageRequest).stream()
-                .map(patientMapper::toDTO)
-                .toList();
+    public PageableContentDto<PatientDTO> getAllPatients(Pageable pageable) {
+        Page<Patient> content = patientRepository.findAll(pageable);
+        return PageableContentDto.<PatientDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(patientMapper::toDTO).toList())
+                .build();
     }
 
     public PatientDTO getPatient(String email) {

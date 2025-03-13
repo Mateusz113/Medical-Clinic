@@ -4,6 +4,7 @@ import com.example.demo.exception.doctor.DoctorFacilityContractViolationExceptio
 import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.DoctorMapper;
+import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.doctor.DoctorDTO;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
@@ -12,12 +13,12 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.DoctorValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.function.BiFunction;
 
 @Service
@@ -35,10 +36,14 @@ public class DoctorService {
         return doctorMapper.toDTO(doctor);
     }
 
-    public List<DoctorDTO> getDoctors(PageRequest pageRequest) {
-        return doctorRepository.findAll(pageRequest).stream()
-                .map(doctorMapper::toDTO)
-                .toList();
+    public PageableContentDto<DoctorDTO> getDoctors(Pageable pageable) {
+        Page<Doctor> content = doctorRepository.findAll(pageable);
+        return PageableContentDto.<DoctorDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(doctorMapper::toDTO).toList())
+                .build();
     }
 
     public DoctorDTO getDoctorByEmail(String email) {
