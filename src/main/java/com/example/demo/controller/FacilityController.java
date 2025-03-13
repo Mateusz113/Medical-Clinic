@@ -25,13 +25,13 @@ public class FacilityController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public FacilityDTO createFacility(@RequestBody FullFacilityDataDTO facilityData) {
+    public FacilityDTO createFacilities(@RequestBody FullFacilityDataDTO facilityData) {
         return facilityService.createFacility(facilityData);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/bulk")
-    public List<FacilityDTO> createFacility(@RequestBody List<FullFacilityDataDTO> facilitiesData) {
+    public List<FacilityDTO> createFacilities(@RequestBody List<FullFacilityDataDTO> facilitiesData) {
         return facilityService.createFacilities(facilitiesData);
     }
 
