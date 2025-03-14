@@ -19,6 +19,7 @@ public interface DoctorMapper {
     SimpleDoctorDTO toSimpleDTO(Doctor doctor);
 
     @Mapping(target = "id", expression = "java(null)")
+    @Mapping(target = "facilities", ignore = true)
     Doctor toEntity(FullDoctorDataDTO doctorData);
 
     Set<Doctor> toEntities(Set<FullDoctorDataDTO> doctorDataDTOS);
