@@ -89,9 +89,8 @@ public class FacilityService {
         Set<Doctor> allDoctors = getExistingDoctors(facilityData);
         addMissingDoctors(facilityData, allDoctors);
         Facility facility = facilityMapper.toEntity(facilityData);
-        Set<Doctor> doctors = facility.getDoctors();
-        doctors.addAll(allDoctors);
-        doctors.forEach((doctor -> doctor.addFacility(facility)));
+        allDoctors.forEach((doctor -> doctor.addFacility(facility)));
+        facility.setDoctors(allDoctors);
         return facilityRepository.save(facility);
     }
 
