@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.patient.PatientAlreadyExistsException;
-import com.example.demo.exception.patient.PatientIllegalArgumentException;
+import com.example.demo.exception.patient.PatientIllegalDataException;
 import com.example.demo.exception.patient.PatientNotFoundException;
 import com.example.demo.mapper.PatientMapper;
 import com.example.demo.model.PageableContentDto;
@@ -62,7 +62,7 @@ public class PatientService {
     @Transactional
     public PatientDTO editPatientPassword(String email, String password) {
         if (password == null) {
-            throw new PatientIllegalArgumentException("Password cannot be set to null.", OffsetDateTime.now());
+            throw new PatientIllegalDataException("Password cannot be set to null.", OffsetDateTime.now());
         }
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email %s does not exist.".formatted(email), OffsetDateTime.now()));
@@ -89,7 +89,7 @@ public class PatientService {
                 || patientData.lastName() == null
                 || patientData.phoneNumber() == null
                 || patientData.birthday() == null) {
-            throw new PatientIllegalArgumentException("There cannot be null fields in patient data.", OffsetDateTime.now());
+            throw new PatientIllegalDataException("There cannot be null fields in patient data.", OffsetDateTime.now());
         }
     }
 
@@ -105,7 +105,7 @@ public class PatientService {
             throw new PatientAlreadyExistsException("Patient with email: %s already exists.".formatted(patientData.email()), OffsetDateTime.now());
         }
         if (!patient.getIdCardNo().equals(patientData.idCardNo())) {
-            throw new PatientIllegalArgumentException("ID card number cannot be changed.", OffsetDateTime.now());
+            throw new PatientIllegalDataException("ID card number cannot be changed.", OffsetDateTime.now());
         }
     }
 }
