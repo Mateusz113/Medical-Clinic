@@ -2,7 +2,7 @@ package com.example.demo.model.facility;
 
 import com.example.demo.model.doctor.SimpleDoctorDTO;
 
-import java.util.Set;
+import java.util.List;
 
 public record FacilityDTO(
         Long id,
@@ -11,6 +11,6 @@ public record FacilityDTO(
         String zipCode,
         String street,
         String buildingNumber,
-        Set<SimpleDoctorDTO> doctors
+        List<SimpleDoctorDTO> doctors
 ) {
 }

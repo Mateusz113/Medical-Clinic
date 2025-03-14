@@ -11,9 +11,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface FacilityMapper {
     FacilityDTO toDTO(Facility facility);
+
+    List<FacilityDTO> toDTOs(List<Facility> facilities);
 
     SimpleFacilityDTO toSimpleDTO(Facility facility);
 

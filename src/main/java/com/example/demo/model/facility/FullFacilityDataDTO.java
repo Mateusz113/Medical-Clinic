@@ -2,7 +2,7 @@ package com.example.demo.model.facility;
 
 import com.example.demo.model.doctor.FullDoctorDataDTO;
 
-import java.util.Set;
+import java.util.List;
 
 public record FullFacilityDataDTO(
         String name,
@@ -10,6 +10,6 @@ public record FullFacilityDataDTO(
         String zipCode,
         String street,
         String buildingNumber,
-        Set<FullDoctorDataDTO> doctors
+        List<FullDoctorDataDTO> doctors
 ) {
 }
