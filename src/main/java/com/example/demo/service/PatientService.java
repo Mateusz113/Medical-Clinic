@@ -25,13 +25,7 @@ public class PatientService {
     private final PatientMapper patientMapper;
 
     public PageableContentDto<PatientDTO> getAllPatients(Pageable pageable) {
-        Page<Patient> content = patientRepository.findAll(pageable);
-        return PageableContentDto.<PatientDTO>builder()
-                .totalEntries(content.getTotalElements())
-                .totalNumberOfPages(content.getTotalPages())
-                .pageNumber(pageable.getPageNumber())
-                .content(content.stream().map(patientMapper::toDTO).toList())
-                .build();
+        return getAllPatientsWithPageable(pageable);
     }
 
     public PatientDTO getPatient(String email) {
@@ -75,6 +69,16 @@ public class PatientService {
         patient.setPassword(password);
         patientRepository.save(patient);
         return patientMapper.toDTO(patient);
+    }
+
+    private PageableContentDto<PatientDTO> getAllPatientsWithPageable(Pageable pageable) {
+        Page<Patient> content = patientRepository.findAll(pageable);
+        return PageableContentDto.<PatientDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(patientMapper::toDTO).toList())
+                .build();
     }
 
     private void validateFullPatientDataDTO(FullPatientDataDTO patientData) {

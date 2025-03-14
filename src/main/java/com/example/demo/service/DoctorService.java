@@ -37,13 +37,7 @@ public class DoctorService {
     }
 
     public PageableContentDto<DoctorDTO> getDoctors(Pageable pageable) {
-        Page<Doctor> content = doctorRepository.findAll(pageable);
-        return PageableContentDto.<DoctorDTO>builder()
-                .totalEntries(content.getTotalElements())
-                .totalNumberOfPages(content.getTotalPages())
-                .pageNumber(pageable.getPageNumber())
-                .content(content.stream().map(doctorMapper::toDTO).toList())
-                .build();
+        return getAllDoctorsWithPageable(pageable);
     }
 
     public DoctorDTO getDoctorByEmail(String email) {
@@ -92,5 +86,15 @@ public class DoctorService {
     private Doctor getDoctorWithEmail(String email) {
         return doctorRepository.findByEmail(email)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
+    }
+
+    private PageableContentDto<DoctorDTO> getAllDoctorsWithPageable(Pageable pageable) {
+        Page<Doctor> content = doctorRepository.findAll(pageable);
+        return PageableContentDto.<DoctorDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(doctorMapper::toDTO).toList())
+                .build();
     }
 }

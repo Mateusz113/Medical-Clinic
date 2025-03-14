@@ -50,13 +50,7 @@ public class FacilityService {
     }
 
     public PageableContentDto<FacilityDTO> getFacilities(Pageable pageable) {
-        Page<Facility> content = facilityRepository.findAll(pageable);
-        return PageableContentDto.<FacilityDTO>builder()
-                .totalEntries(content.getTotalElements())
-                .totalNumberOfPages(content.getTotalPages())
-                .pageNumber(pageable.getPageNumber())
-                .content(content.stream().map(facilityMapper::toDTO).toList())
-                .build();
+        return getAllFacilitiesWithPageable(pageable);
     }
 
     public FacilityDTO getFacilityById(Long id) {
@@ -82,6 +76,16 @@ public class FacilityService {
     private Facility getFacilityWithId(Long id) {
         return facilityRepository.findById(id)
                 .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(id), OffsetDateTime.now()));
+    }
+
+    private PageableContentDto<FacilityDTO> getAllFacilitiesWithPageable(Pageable pageable) {
+        Page<Facility> content = facilityRepository.findAll(pageable);
+        return PageableContentDto.<FacilityDTO>builder()
+                .totalEntries(content.getTotalElements())
+                .totalNumberOfPages(content.getTotalPages())
+                .pageNumber(pageable.getPageNumber())
+                .content(content.stream().map(facilityMapper::toDTO).toList())
+                .build();
     }
 
     private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
