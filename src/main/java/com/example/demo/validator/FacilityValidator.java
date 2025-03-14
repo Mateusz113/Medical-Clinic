@@ -1,7 +1,7 @@
 package com.example.demo.validator;
 
 import com.example.demo.exception.facility.FacilityAlreadyExistsException;
-import com.example.demo.exception.facility.FacilityIllegalArgumentException;
+import com.example.demo.exception.facility.FacilityIllegalDataException;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FullFacilityDataDTO;
 import com.example.demo.repository.FacilityRepository;
@@ -31,12 +31,12 @@ public class FacilityValidator {
     }
 
     private void validateFacilityData(FullFacilityDataDTO facilityData) {
-        if (facilityData.name() == null
-                || facilityData.city() == null
-                || facilityData.zipCode() == null
-                || facilityData.street() == null
-                || facilityData.buildingNumber() == null) {
-            throw new FacilityIllegalArgumentException("There cannot be null fields in facility.", OffsetDateTime.now());
+        if (Objects.isNull(facilityData.name())
+                || Objects.isNull(facilityData.city())
+                || Objects.isNull(facilityData.zipCode())
+                || Objects.isNull(facilityData.street())
+                || Objects.isNull(facilityData.buildingNumber())) {
+            throw new FacilityIllegalDataException("There cannot be null fields in facility.", OffsetDateTime.now());
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.demo.validator;
 
 import com.example.demo.exception.doctor.DoctorAlreadyExistsException;
-import com.example.demo.exception.doctor.DoctorIllegalArgumentException;
+import com.example.demo.exception.doctor.DoctorIllegalDataException;
 import com.example.demo.exception.patient.PatientAlreadyExistsException;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class DoctorValidator {
         validateEmailAvailability(doctorData.email());
     }
 
-    public void validateDoctorBulkCreation(Set<FullDoctorDataDTO> doctorData) {
+    public void validateDoctorBulkCreation(List<FullDoctorDataDTO> doctorData) {
         doctorData.forEach(this::validateDoctorData);
     }
 
@@ -35,12 +35,12 @@ public class DoctorValidator {
     }
 
     private void validateDoctorData(FullDoctorDataDTO doctorData) {
-        if (doctorData.email() == null
-                || doctorData.password() == null
-                || doctorData.firstName() == null
-                || doctorData.lastName() == null
-                || doctorData.specialization() == null) {
-            throw new DoctorIllegalArgumentException("There cannot be null fields in doctor.", OffsetDateTime.now());
+        if (Objects.isNull(doctorData.email())
+                || Objects.isNull(doctorData.password())
+                || Objects.isNull(doctorData.firstName())
+                || Objects.isNull(doctorData.lastName())
+                || Objects.isNull(doctorData.specialization())) {
+            throw new DoctorIllegalDataException("There cannot be null fields in doctor.", OffsetDateTime.now());
         }
     }
 
