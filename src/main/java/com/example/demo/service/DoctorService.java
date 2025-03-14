@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.exception.doctor.DoctorFacilityContractViolationException;
 import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.DoctorMapper;
@@ -19,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.function.BiFunction;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -55,32 +56,17 @@ public class DoctorService {
     }
 
     @Transactional
-    public void addFacility(String email, Long id) {
-        updateFacilitiesSet(email, id, Doctor::addFacility);
-    }
-
-    @Transactional
-    public void removeFacility(String email, Long id) {
-        updateFacilitiesSet(email, id, Doctor::removeFacility);
+    public void updateFacilities(String email, List<Long> facilitiesIds) {
+        Doctor doctor = getDoctorWithEmail(email);
+        Set<Facility> facilities = getFacilitiesWithIds(facilitiesIds);
+        doctor.setFacilities(facilities);
+        doctorRepository.save(doctor);
     }
 
     @Transactional
     public void deleteDoctor(String email) {
         Doctor doctor = getDoctorWithEmail(email);
         doctorRepository.delete(doctor);
-    }
-
-    private void updateFacilitiesSet(String doctorEmail,
-                                     Long facilityId,
-                                     BiFunction<Doctor, Facility, Boolean> facilitySetOperation) {
-        Doctor doctor = getDoctorWithEmail(doctorEmail);
-        Facility facility = facilityRepository.findById(facilityId)
-                .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(facilityId), OffsetDateTime.now()));
-        boolean operationSuccessful = facilitySetOperation.apply(doctor, facility);
-        if (!operationSuccessful) {
-            throw new DoctorFacilityContractViolationException("There was an error updating information about doctor and facility relation.", OffsetDateTime.now());
-        }
-        doctorRepository.save(doctor);
     }
 
     private Doctor getDoctorWithEmail(String email) {
@@ -96,5 +82,15 @@ public class DoctorService {
                 .pageNumber(pageable.getPageNumber())
                 .content(content.stream().map(doctorMapper::toDTO).toList())
                 .build();
+    }
+
+    private Set<Facility> getFacilitiesWithIds(List<Long> facilitiesIds) {
+        Set<Facility> facilities = new HashSet<>();
+        facilitiesIds.forEach(facilityId -> {
+            Facility facility = facilityRepository.findById(facilityId)
+                    .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(facilityId), OffsetDateTime.now()));
+            facilities.add(facility);
+        });
+        return facilities;
     }
 }

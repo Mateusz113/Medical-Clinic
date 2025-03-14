@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.exception.doctor.DoctorIllegalArgumentException;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.DoctorDTO;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
@@ -16,11 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.OffsetDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/doctors")
@@ -51,13 +49,8 @@ public class DoctorController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{email}/facilities")
-    public void editFacilities(@PathVariable("email") String email, @RequestParam("action") String action, @RequestParam("id") Long id) {
-        switch (action) {
-            case "add" -> doctorService.addFacility(email, id);
-            case "delete" -> doctorService.removeFacility(email, id);
-            default ->
-                    throw new DoctorIllegalArgumentException("Incorrect operation passed in \"action\" param.", OffsetDateTime.now());
-        }
+    public void editFacilities(@PathVariable("email") String email, @RequestBody List<Long> facilitiesIds) {
+        doctorService.updateFacilities(email, facilitiesIds);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
