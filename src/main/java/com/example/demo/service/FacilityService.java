@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,12 +42,12 @@ public class FacilityService {
 
     @Transactional
     public List<FacilityDTO> createFacilities(List<FullFacilityDataDTO> facilityDataList) {
-        List<Facility> facilities = facilityDataList.stream()
-                .map(this::saveFacilityToDatabase)
-                .toList();
-        return facilities.stream()
-                .map(facilityMapper::toDTO)
-                .toList();
+        List<Facility> facilities = new LinkedList<>();
+        facilityDataList.forEach(facilityData -> {
+            Facility facility = saveFacilityToDatabase(facilityData);
+            facilities.add(facility);
+        });
+        return facilityMapper.toDTOs(facilities);
     }
 
     public PageableContentDto<FacilityDTO> getFacilities(Pageable pageable) {
@@ -110,7 +111,7 @@ public class FacilityService {
         existingDoctors.addAll(doctorMapper.toEntities(missingDoctors));
     }
 
-    private Set<FullDoctorDataDTO> getMissingDoctors(Set<Doctor> existingDoctors, Set<FullDoctorDataDTO> doctors) {
+    private Set<FullDoctorDataDTO> getMissingDoctors(Set<Doctor> existingDoctors, List<FullDoctorDataDTO> doctors) {
         List<String> existingDoctorEmails = existingDoctors.stream()
                 .map(Doctor::getEmail)
                 .toList();
