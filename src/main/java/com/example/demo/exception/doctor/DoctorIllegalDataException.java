@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 
 import java.time.OffsetDateTime;
 
-public class DoctorIllegalArgumentException extends WebException {
-    public DoctorIllegalArgumentException(String message, OffsetDateTime date) {
+public class DoctorIllegalDataException extends WebException {
+    public DoctorIllegalDataException(String message, OffsetDateTime date) {
         super(message, HttpStatus.BAD_REQUEST, date);
     }
 }
