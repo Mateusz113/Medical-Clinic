@@ -85,12 +85,10 @@ public class DoctorService {
     }
 
     private Set<Facility> getFacilitiesWithIds(List<Long> facilitiesIds) {
-        Set<Facility> facilities = new HashSet<>();
-        facilitiesIds.forEach(facilityId -> {
-            Facility facility = facilityRepository.findById(facilityId)
-                    .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(facilityId), OffsetDateTime.now()));
-            facilities.add(facility);
-        });
+        Set<Facility> facilities = new HashSet<>(facilityRepository.findFacilitiesByIds(facilitiesIds));
+        if (facilities.size() != facilitiesIds.size()) {
+            throw new FacilityNotFoundException("List of facilities ids contained invalid values.", OffsetDateTime.now());
+        }
         return facilities;
     }
 }
