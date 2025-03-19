@@ -10,6 +10,7 @@ import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
+import com.example.demo.repository.VisitRepository;
 import com.example.demo.validator.DoctorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class DoctorService {
     private final FacilityRepository facilityRepository;
     private final DoctorMapper doctorMapper;
     private final DoctorValidator doctorValidator;
+    private final VisitRepository visitRepository;
 
     @Transactional
     public DoctorDTO createDoctor(FullDoctorDataDTO doctorData) {
@@ -66,6 +68,7 @@ public class DoctorService {
     @Transactional
     public void deleteDoctor(String email) {
         Doctor doctor = getDoctorWithEmail(email);
+        visitRepository.detachDoctorIdFromVisits(doctor.getId());
         doctorRepository.delete(doctor);
     }
 
