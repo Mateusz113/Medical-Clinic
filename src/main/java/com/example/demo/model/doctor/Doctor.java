@@ -1,6 +1,8 @@
 package com.example.demo.model.doctor;
 
 import com.example.demo.model.facility.Facility;
+import com.example.demo.model.visit.Visit;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,6 +42,8 @@ public class Doctor {
             inverseJoinColumns = @JoinColumn(name = "facility_id")
     )
     private Set<Facility> facilities = new HashSet<>();
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.REMOVE)
+    private Set<Visit> visits = new HashSet<>();
 
     public void update(FullDoctorDataDTO doctorData) {
         this.email = doctorData.email();
@@ -48,12 +53,8 @@ public class Doctor {
         this.specialization = doctorData.specialization();
     }
 
-    public boolean addFacility(Facility facility) {
-        return facilities.add(facility);
-    }
-
-    public boolean removeFacility(Facility facility) {
-        return facilities.remove(facility);
+    public void addFacility(Facility facility) {
+        facilities.add(facility);
     }
 
     @Override
