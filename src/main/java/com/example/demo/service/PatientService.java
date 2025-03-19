@@ -9,6 +9,7 @@ import com.example.demo.model.patient.FullPatientDataDTO;
 import com.example.demo.model.patient.Patient;
 import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.repository.PatientRepository;
+import com.example.demo.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.Objects;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
+    private final VisitRepository visitRepository;
 
     public PageableContentDto<PatientDTO> getAllPatients(Pageable pageable) {
         return getAllPatientsWithPageable(pageable);
@@ -46,6 +48,7 @@ public class PatientService {
     public void deletePatient(String email) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email: %s does not exist.".formatted(email), OffsetDateTime.now()));
+        visitRepository.detachPatientIdFromVisits(patient.getId());
         patientRepository.delete(patient);
     }
 
