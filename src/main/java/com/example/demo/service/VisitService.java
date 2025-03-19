@@ -56,7 +56,7 @@ public class VisitService {
     }
 
     @Transactional
-    public void allocatePatientToVisit(Long visitId, Long patientId) {
+    public void registerPatientToVisit(Long visitId, Long patientId) {
         Visit visit = getVisitWithId(visitId);
         Patient patient = getPatientWithId(patientId);
         VisitValidator.validateVisitAvailability(visit);

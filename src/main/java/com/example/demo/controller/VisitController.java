@@ -46,8 +46,8 @@ public class VisitController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{id}/patientId/{patientId}")
-    public void allocatePatientToVisit(@PathVariable("id") Long visitId, @PathVariable("patientId") Long patientId) {
-        visitService.allocatePatientToVisit(visitId, patientId);
+    public void registerPatientToVisit(@PathVariable("id") Long visitId, @PathVariable("patientId") Long patientId) {
+        visitService.registerPatientToVisit(visitId, patientId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
