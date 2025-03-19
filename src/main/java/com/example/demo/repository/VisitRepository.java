@@ -20,6 +20,10 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     @Query("update VISITS v set v.patient = null where v.patient.id = :patientId")
     void detachPatientIdFromVisits(Long patientId);
 
+    @Modifying
+    @Query("update VISITS v set v.doctor = null where v.doctor.id = :doctorId")
+    void detachDoctorIdFromVisits(Long doctorId);
+
     Page<Visit> findAllByDoctorId(Long doctorId, Pageable pageable);
 
     Page<Visit> findAllByPatientId(Long patientId, Pageable pageable);
