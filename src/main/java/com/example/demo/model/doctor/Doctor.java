@@ -42,7 +42,7 @@ public class Doctor {
             inverseJoinColumns = @JoinColumn(name = "facility_id")
     )
     private Set<Facility> facilities = new HashSet<>();
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "doctor")
     private Set<Visit> visits = new HashSet<>();
 
     public void update(FullDoctorDataDTO doctorData) {
