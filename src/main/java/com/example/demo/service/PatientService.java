@@ -63,7 +63,7 @@ public class PatientService {
     }
 
     @Transactional
-    public PatientDTO editPatientPassword(String email, String password) {
+    public void editPatientPassword(String email, String password) {
         if (password == null) {
             throw new PatientIllegalDataException("Password cannot be set to null.", OffsetDateTime.now());
         }
@@ -71,7 +71,6 @@ public class PatientService {
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email %s does not exist.".formatted(email), OffsetDateTime.now()));
         patient.setPassword(password);
         patientRepository.save(patient);
-        return patientMapper.toDTO(patient);
     }
 
     private PageableContentDto<PatientDTO> getAllPatientsWithPageable(Pageable pageable) {
