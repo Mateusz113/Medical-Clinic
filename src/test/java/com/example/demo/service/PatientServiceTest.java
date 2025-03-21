@@ -12,10 +12,7 @@ import com.example.demo.repository.PatientRepository;
 import com.example.demo.repository.VisitRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,17 +26,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class PatientServiceTest {
-    @Mock
     private PatientRepository patientRepository;
-    @Mock
-    private VisitRepository visitRepository;
     private PatientService patientService;
 
     @BeforeEach
     void setUp() {
+        patientRepository = mock(PatientRepository.class);
         PatientMapper patientMapper = Mappers.getMapper(PatientMapper.class);
+        VisitRepository visitRepository = mock(VisitRepository.class);
         patientService = new PatientService(patientRepository, patientMapper, visitRepository);
     }
 
@@ -47,7 +42,7 @@ public class PatientServiceTest {
     void getAllPatients_ThereAreNoPatients_ReturnsEmptyPageableContentDto() {
         //given
         Pageable pageable = PageRequest.of(0, 10);
-        when(patientRepository.findAll(PageRequest.of(0, 10))).thenReturn(Page.empty());
+        when(patientRepository.findAll(pageable)).thenReturn(Page.empty());
         //when
         PageableContentDto<PatientDTO> pageableContentDto = patientService.getAllPatients(pageable);
         //then
@@ -72,8 +67,8 @@ public class PatientServiceTest {
                 .build();
         List<Patient> patients = new ArrayList<>();
         patients.add(currentPatient);
-        Page<Patient> patientPage = new PageImpl<>(patients, PageRequest.of(0, 10), patients.size());
-        when(patientRepository.findAll(PageRequest.of(0, 10))).thenReturn(patientPage);
+        Page<Patient> patientPage = new PageImpl<>(patients, pageable, patients.size());
+        when(patientRepository.findAll(pageable)).thenReturn(patientPage);
         //when
         PageableContentDto<PatientDTO> pageableContentDto = patientService.getAllPatients(pageable);
         //then
@@ -105,7 +100,7 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
         PatientDTO result = patientService.getPatient(email);
         //then
@@ -123,10 +118,11 @@ public class PatientServiceTest {
     void getPatient_PatientDoesNotExist_ThrowsPatientNotFoundException() {
         //given
         String email = "email";
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.empty());
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
         //when
+        PatientNotFoundException result = assertThrows(PatientNotFoundException.class, () -> patientService.getPatient(email));
         //then
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatient(email));
+        assertEquals("Patient with email: %s does not exist.".formatted(email), result.getMessage());
     }
 
     @Test
@@ -142,8 +138,9 @@ public class PatientServiceTest {
                 .birthday(null)
                 .build();
         //when
+        PatientIllegalDataException result = assertThrows(PatientIllegalDataException.class, () -> patientService.createPatient(newPatientData));
         //then
-        assertThrows(PatientIllegalDataException.class, () -> patientService.createPatient(newPatientData));
+        assertEquals("There cannot be null fields in patient data.", result.getMessage());
     }
 
     @Test
@@ -158,10 +155,11 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.existsByEmail("email")).thenReturn(true);
+        when(patientRepository.existsByEmail(newPatientData.email())).thenReturn(true);
         //when
+        PatientAlreadyExistsException result = assertThrows(PatientAlreadyExistsException.class, () -> patientService.createPatient(newPatientData));
         //then
-        assertThrows(PatientAlreadyExistsException.class, () -> patientService.createPatient(newPatientData));
+        assertEquals("Patient with email: %s already exists.".formatted(newPatientData.email()), result.getMessage());
     }
 
     @Test
@@ -195,7 +193,7 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.existsByEmail("email")).thenReturn(false);
+        when(patientRepository.existsByEmail(newPatientData.email())).thenReturn(false);
         when(patientRepository.save(patient)).thenReturn(patient);
         //when
         PatientDTO result = patientService.createPatient(newPatientData);
@@ -214,10 +212,11 @@ public class PatientServiceTest {
     void deletePatient_PatientWithEmailDoesNotExist_ThrowsPatientNotFoundException() {
         //given
         String email = "email";
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.empty());
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
         //when
+        PatientNotFoundException result = assertThrows(PatientNotFoundException.class, () -> patientService.deletePatient(email));
         //then
-        assertThrows(PatientNotFoundException.class, () -> patientService.deletePatient(email));
+        assertEquals("Patient with email: %s does not exist.".formatted(email), result.getMessage());
     }
 
     @Test
@@ -233,7 +232,7 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
         patientService.deletePatient(email);
         //then
@@ -244,19 +243,11 @@ public class PatientServiceTest {
     void editPatient_PatientDoesNotExist_ThrowsPatientNotFoundException() {
         //given
         String email = "email";
-        FullPatientDataDTO newPatientData = FullPatientDataDTO.builder()
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.empty());
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
         //when
+        PatientNotFoundException result = assertThrows(PatientNotFoundException.class, () -> patientService.editPatient(email, null));
         //then
-        assertThrows(PatientNotFoundException.class, () -> patientService.editPatient(email, newPatientData));
+        assertEquals("Patient with email %s does not exist.".formatted(email), result.getMessage());
     }
 
     @Test
@@ -282,18 +273,20 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
+        PatientIllegalDataException result = assertThrows(PatientIllegalDataException.class, () -> patientService.editPatient(email, newPatientData));
         //then
-        assertThrows(PatientIllegalDataException.class, () -> patientService.editPatient(email, newPatientData));
+        assertEquals("There cannot be null fields in patient data.", result.getMessage());
     }
 
     @Test
     void editPatient_PatientDataContainsEmailThatExistsAndIsDifferentFromCurrentEmail_ThrowsPatientAlreadyExistsException() {
         //given
         String email = "email";
+        String newEmail = "new email";
         FullPatientDataDTO newPatientData = FullPatientDataDTO.builder()
-                .email("new email")
+                .email(newEmail)
                 .password("password")
                 .idCardNo("idCardNo")
                 .firstName("firstName")
@@ -311,19 +304,21 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
-        when(patientRepository.existsByEmail("new email")).thenReturn(true);
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.existsByEmail(newEmail)).thenReturn(true);
         //when
+        PatientAlreadyExistsException result = assertThrows(PatientAlreadyExistsException.class, () -> patientService.editPatient(email, newPatientData));
         //then
-        assertThrows(PatientAlreadyExistsException.class, () -> patientService.editPatient(email, newPatientData));
+        assertEquals("Patient with email: %s already exists.".formatted(newEmail), result.getMessage());
     }
 
     @Test
     void editPatient_PatientDataContainsNewIdCardNo_ThrowsPatientIllegalDataException() {
         //given
         String email = "email";
+        String newEmail = "new email";
         FullPatientDataDTO newPatientData = FullPatientDataDTO.builder()
-                .email("new email")
+                .email(newEmail)
                 .password("new password")
                 .idCardNo("new idCardNo")
                 .firstName("new firstName")
@@ -341,19 +336,21 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
-        when(patientRepository.existsByEmail("new email")).thenReturn(false);
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.existsByEmail(newEmail)).thenReturn(false);
         //when
+        PatientIllegalDataException result = assertThrows(PatientIllegalDataException.class, () -> patientService.editPatient(email, newPatientData));
         //then
-        assertThrows(PatientIllegalDataException.class, () -> patientService.editPatient(email, newPatientData));
+        assertEquals("ID card number cannot be changed.", result.getMessage());
     }
 
     @Test
     void editPatient_PatientDataIsCorrect_EditsPatient() {
         //given
         String email = "email";
+        String newEmail = "new email";
         FullPatientDataDTO newPatientData = FullPatientDataDTO.builder()
-                .email("new email")
+                .email(newEmail)
                 .password("new password")
                 .idCardNo("idCardNo")
                 .firstName("new firstName")
@@ -380,8 +377,8 @@ public class PatientServiceTest {
                 .phoneNumber("new phoneNumber")
                 .birthday(LocalDate.of(2012, 11, 11))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
-        when(patientRepository.existsByEmail("new email")).thenReturn(false);
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.existsByEmail(newEmail)).thenReturn(false);
         //when
         PatientDTO result = patientService.editPatient(email, newPatientData);
         //then
@@ -401,8 +398,9 @@ public class PatientServiceTest {
         String email = "email";
         String password = null;
         //when
+        PatientIllegalDataException result = assertThrows(PatientIllegalDataException.class, () -> patientService.editPatientPassword(email, password));
         //then
-        assertThrows(PatientIllegalDataException.class, () -> patientService.editPatientPassword(email, password));
+        assertEquals("Password cannot be set to null.", result.getMessage());
     }
 
     @Test
@@ -410,10 +408,11 @@ public class PatientServiceTest {
         //given
         String email = "email";
         String password = "password";
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.empty());
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
         //when
+        PatientNotFoundException result = assertThrows(PatientNotFoundException.class, () -> patientService.editPatientPassword(email, password));
         //then
-        assertThrows(PatientNotFoundException.class, () -> patientService.editPatientPassword(email, password));
+        assertEquals("Patient with email %s does not exist.".formatted(email), result.getMessage());
     }
 
     @Test
@@ -431,10 +430,10 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail("email")).thenReturn(Optional.of(currentPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
         patientService.editPatientPassword(email, password);
         //then
-        assertEquals("password", currentPatient.getPassword());
+        assertEquals(password, currentPatient.getPassword());
     }
 }
