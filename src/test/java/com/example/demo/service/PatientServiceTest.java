@@ -56,15 +56,7 @@ public class PatientServiceTest {
     void getAllPatients_ThereArePatients_ReturnsCorrectPageableContentDto() {
         //given
         Pageable pageable = PageRequest.of(0, 10);
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         List<Patient> patients = new ArrayList<>();
         patients.add(currentPatient);
         Page<Patient> patientPage = new PageImpl<>(patients, pageable, patients.size());
@@ -82,15 +74,7 @@ public class PatientServiceTest {
     void getPatient_PatientExists_ReturnsPatientDTO() {
         //given
         String email = "email";
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         PatientDTO expected = PatientDTO.builder()
                 .id(1L)
                 .email("email")
@@ -104,7 +88,6 @@ public class PatientServiceTest {
         //when
         PatientDTO result = patientService.getPatient(email);
         //then
-        assertInstanceOf(PatientDTO.class, result);
         assertEquals(expected.id(), result.id());
         assertEquals(expected.email(), result.email());
         assertEquals(expected.idCardNo(), result.idCardNo());
@@ -174,16 +157,7 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        Patient patient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient patient = buildPatient();
         PatientDTO expected = PatientDTO.builder()
                 .id(1L)
                 .email("email")
@@ -223,15 +197,7 @@ public class PatientServiceTest {
     void deletePatient_PatientWithEmailExists_DeletesPatient() {
         //given
         String email = "email";
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
         patientService.deletePatient(email);
@@ -263,16 +229,7 @@ public class PatientServiceTest {
                 .phoneNumber("new phoneNumber")
                 .birthday(LocalDate.of(2012, 11, 11))
                 .build();
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         //when
         PatientIllegalDataException result = assertThrows(PatientIllegalDataException.class, () -> patientService.editPatient(email, newPatientData));
@@ -294,16 +251,7 @@ public class PatientServiceTest {
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         when(patientRepository.existsByEmail(newEmail)).thenReturn(true);
         //when
@@ -326,16 +274,7 @@ public class PatientServiceTest {
                 .phoneNumber("new phoneNumber")
                 .birthday(LocalDate.of(2012, 11, 11))
                 .build();
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         when(patientRepository.existsByEmail(newEmail)).thenReturn(false);
         //when
@@ -358,16 +297,7 @@ public class PatientServiceTest {
                 .phoneNumber("new phoneNumber")
                 .birthday(LocalDate.of(2012, 11, 11))
                 .build();
-        Patient currentPatient = Patient.builder()
-                .id(1L)
-                .email("email")
-                .password("password")
-                .idCardNo("idCardNo")
-                .firstName("firstName")
-                .lastName("lastName")
-                .phoneNumber("phoneNumber")
-                .birthday(LocalDate.of(2012, 12, 12))
-                .build();
+        Patient currentPatient = buildPatient();
         PatientDTO expected = PatientDTO.builder()
                 .id(1L)
                 .email("new email")
@@ -419,21 +349,25 @@ public class PatientServiceTest {
     void editPatientPassword_NewPasswordIsCorrect_EditsPatientPassword() {
         //given
         String email = "email";
-        String password = "password";
-        Patient currentPatient = Patient.builder()
+        String password = "different password";
+        Patient currentPatient = buildPatient();
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
+        //when
+        patientService.editPatientPassword(email, password);
+        //then
+        assertEquals(password, currentPatient.getPassword());
+    }
+
+    private Patient buildPatient() {
+        return Patient.builder()
                 .id(1L)
                 .email("email")
-                .password("different password")
+                .password("password")
                 .idCardNo("idCardNo")
                 .firstName("firstName")
                 .lastName("lastName")
                 .phoneNumber("phoneNumber")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
-        //when
-        patientService.editPatientPassword(email, password);
-        //then
-        assertEquals(password, currentPatient.getPassword());
     }
 }
