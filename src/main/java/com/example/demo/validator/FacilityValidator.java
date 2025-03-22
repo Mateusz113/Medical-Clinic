@@ -14,23 +14,20 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class FacilityValidator {
-    private final FacilityRepository facilityRepository;
-    private final DoctorValidator doctorValidator;
-
-    public void validateFacilityCreation(FullFacilityDataDTO facilityData) {
+    public static void validateFacilityCreation(FullFacilityDataDTO facilityData, FacilityRepository facilityRepository) {
         validateFacilityData(facilityData);
-        validateNameAvailability(facilityData.name());
-        doctorValidator.validateDoctorBulkCreation(facilityData.doctors());
+        validateNameAvailability(facilityData.name(), facilityRepository);
+        DoctorValidator.validateDoctorBulkCreation(facilityData.doctors());
     }
 
-    public void validateFacilityEdit(Facility facility, FullFacilityDataDTO facilityData) {
+    public static void validateFacilityEdit(Facility facility, FullFacilityDataDTO facilityData, FacilityRepository facilityRepository) {
         validateFacilityData(facilityData);
         if (facilityRepository.existsByName(facilityData.name()) && !Objects.equals(facility.getName(), facilityData.name())) {
             throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(facilityData.name()), OffsetDateTime.now());
         }
     }
 
-    private void validateFacilityData(FullFacilityDataDTO facilityData) {
+    private static void validateFacilityData(FullFacilityDataDTO facilityData) {
         if (Objects.isNull(facilityData.name())
                 || Objects.isNull(facilityData.city())
                 || Objects.isNull(facilityData.zipCode())
@@ -40,7 +37,7 @@ public class FacilityValidator {
         }
     }
 
-    private void validateNameAvailability(String name) {
+    private static void validateNameAvailability(String name, FacilityRepository facilityRepository) {
         if (facilityRepository.existsByName(name)) {
             throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(name), OffsetDateTime.now());
         }

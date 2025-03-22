@@ -16,25 +16,23 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class DoctorValidator {
-    private final DoctorRepository doctorRepository;
-
-    public void validateDoctorCreation(FullDoctorDataDTO doctorData) {
+    public static void validateDoctorCreation(FullDoctorDataDTO doctorData, DoctorRepository doctorRepository) {
         validateDoctorData(doctorData);
-        validateEmailAvailability(doctorData.email());
+        validateEmailAvailability(doctorData.email(), doctorRepository);
     }
 
-    public void validateDoctorBulkCreation(List<FullDoctorDataDTO> doctorData) {
-        doctorData.forEach(this::validateDoctorData);
+    public static void validateDoctorBulkCreation(List<FullDoctorDataDTO> doctorData) {
+        doctorData.forEach(DoctorValidator::validateDoctorData);
     }
 
-    public void validateDoctorEdit(Doctor doctor, FullDoctorDataDTO doctorData) {
+    public static void validateDoctorEdit(Doctor doctor, FullDoctorDataDTO doctorData, DoctorRepository doctorRepository) {
         validateDoctorData(doctorData);
         if (doctorRepository.existsByEmail(doctorData.email()) && !Objects.equals(doctorData.email(), doctor.getEmail())) {
             throw new PatientAlreadyExistsException("Doctor with email: %s already exists.".formatted(doctorData.email()), OffsetDateTime.now());
         }
     }
 
-    private void validateDoctorData(FullDoctorDataDTO doctorData) {
+    private static void validateDoctorData(FullDoctorDataDTO doctorData) {
         if (Objects.isNull(doctorData.email())
                 || Objects.isNull(doctorData.password())
                 || Objects.isNull(doctorData.firstName())
@@ -44,7 +42,7 @@ public class DoctorValidator {
         }
     }
 
-    private void validateEmailAvailability(String email) {
+    private static void validateEmailAvailability(String email, DoctorRepository doctorRepository) {
         if (doctorRepository.existsByEmail(email)) {
             throw new DoctorAlreadyExistsException("Doctor with email: %s already exists.".formatted(email), OffsetDateTime.now());
         }

@@ -31,7 +31,6 @@ public class FacilityService {
     private final FacilityRepository facilityRepository;
     private final DoctorRepository doctorRepository;
     private final FacilityMapper facilityMapper;
-    private final FacilityValidator facilityValidator;
     private final DoctorMapper doctorMapper;
 
     @Transactional
@@ -62,7 +61,7 @@ public class FacilityService {
     @Transactional
     public FacilityDTO editFacility(Long id, FullFacilityDataDTO facilityData) {
         Facility facility = getFacilityWithId(id);
-        facilityValidator.validateFacilityEdit(facility, facilityData);
+        FacilityValidator.validateFacilityEdit(facility, facilityData, facilityRepository);
         facility.update(facilityData);
         facilityRepository.save(facility);
         return facilityMapper.toDTO(facility);
@@ -90,7 +89,7 @@ public class FacilityService {
     }
 
     private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
-        facilityValidator.validateFacilityCreation(facilityData);
+        FacilityValidator.validateFacilityCreation(facilityData, facilityRepository);
         Set<Doctor> allDoctors = getExistingDoctors(facilityData);
         addMissingDoctors(facilityData, allDoctors);
         Facility facility = facilityMapper.toEntity(facilityData);

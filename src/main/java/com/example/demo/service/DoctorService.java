@@ -29,12 +29,11 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final FacilityRepository facilityRepository;
     private final DoctorMapper doctorMapper;
-    private final DoctorValidator doctorValidator;
     private final VisitRepository visitRepository;
 
     @Transactional
     public DoctorDTO createDoctor(FullDoctorDataDTO doctorData) {
-        doctorValidator.validateDoctorCreation(doctorData);
+        DoctorValidator.validateDoctorCreation(doctorData, doctorRepository);
         Doctor doctor = doctorRepository.save(doctorMapper.toEntity(doctorData));
         return doctorMapper.toDTO(doctor);
     }
@@ -51,7 +50,7 @@ public class DoctorService {
     @Transactional
     public DoctorDTO editDoctor(String email, FullDoctorDataDTO doctorData) {
         Doctor doctor = getDoctorWithEmail(email);
-        doctorValidator.validateDoctorEdit(doctor, doctorData);
+        DoctorValidator.validateDoctorEdit(doctor, doctorData, doctorRepository);
         doctor.update(doctorData);
         doctorRepository.save(doctor);
         return doctorMapper.toDTO(doctor);
