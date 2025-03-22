@@ -28,7 +28,7 @@ public class DoctorValidator {
     public static void validateDoctorEdit(Doctor doctor, FullDoctorDataDTO doctorData, DoctorRepository doctorRepository) {
         validateDoctorData(doctorData);
         if (doctorRepository.existsByEmail(doctorData.email()) && !Objects.equals(doctorData.email(), doctor.getEmail())) {
-            throw new PatientAlreadyExistsException("Doctor with email: %s already exists.".formatted(doctorData.email()), OffsetDateTime.now());
+            throw new DoctorAlreadyExistsException("Doctor with email: %s already exists.".formatted(doctorData.email()), OffsetDateTime.now());
         }
     }
 
