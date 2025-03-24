@@ -44,12 +44,12 @@ public class PatientServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         when(patientRepository.findAll(pageable)).thenReturn(Page.empty());
         //when
-        PageableContentDto<PatientDTO> pageableContentDto = patientService.getAllPatients(pageable);
+        PageableContentDto<PatientDTO> result = patientService.getAllPatients(pageable);
         //then
-        assertEquals(0, pageableContentDto.pageNumber());
-        assertEquals(0, pageableContentDto.totalEntries());
-        assertEquals(1, pageableContentDto.totalNumberOfPages());
-        assertTrue(pageableContentDto.content().isEmpty());
+        assertEquals(0, result.pageNumber());
+        assertEquals(0, result.totalEntries());
+        assertEquals(1, result.totalNumberOfPages());
+        assertTrue(result.content().isEmpty());
     }
 
     @Test
@@ -62,12 +62,19 @@ public class PatientServiceTest {
         Page<Patient> patientPage = new PageImpl<>(patients, pageable, patients.size());
         when(patientRepository.findAll(pageable)).thenReturn(patientPage);
         //when
-        PageableContentDto<PatientDTO> pageableContentDto = patientService.getAllPatients(pageable);
+        PageableContentDto<PatientDTO> result = patientService.getAllPatients(pageable);
         //then
-        assertEquals(0, pageableContentDto.pageNumber());
-        assertEquals(1, pageableContentDto.totalEntries());
-        assertEquals(1, pageableContentDto.totalNumberOfPages());
-        assertEquals(1, pageableContentDto.content().size());
+        assertEquals(0, result.pageNumber());
+        assertEquals(1, result.totalEntries());
+        assertEquals(1, result.totalNumberOfPages());
+        assertEquals(1, result.content().size());
+        assertEquals(1L, result.content().getFirst().id());
+        assertEquals("email", result.content().getFirst().email());
+        assertEquals("idCardNo", result.content().getFirst().idCardNo());
+        assertEquals("firstName", result.content().getFirst().firstName());
+        assertEquals("lastName", result.content().getFirst().lastName());
+        assertEquals("phoneNumber", result.content().getFirst().phoneNumber());
+        assertEquals(LocalDate.of(2012, 12, 12), result.content().getFirst().birthday());
     }
 
     @Test
