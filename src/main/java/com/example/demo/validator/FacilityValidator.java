@@ -5,14 +5,10 @@ import com.example.demo.exception.facility.FacilityIllegalDataException;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FullFacilityDataDTO;
 import com.example.demo.repository.FacilityRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
-@Component
-@RequiredArgsConstructor
 public class FacilityValidator {
     public static void validateFacilityCreation(FullFacilityDataDTO facilityData, FacilityRepository facilityRepository) {
         validateFacilityData(facilityData);
