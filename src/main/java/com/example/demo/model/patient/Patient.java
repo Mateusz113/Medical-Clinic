@@ -1,5 +1,6 @@
 package com.example.demo.model.patient;
 
+import com.example.demo.command.patient.UpsertPatientCommand;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,14 +37,14 @@ public class Patient {
     private String phoneNumber;
     private LocalDate birthday;
 
-    public void update(FullPatientDataDTO patientData) {
-        this.email = patientData.email();
-        this.password = patientData.password();
-        this.idCardNo = patientData.idCardNo();
-        this.firstName = patientData.firstName();
-        this.lastName = patientData.lastName();
-        this.phoneNumber = patientData.phoneNumber();
-        this.birthday = patientData.birthday();
+    public void update(UpsertPatientCommand upsertPatientCommand) {
+        this.email = upsertPatientCommand.email();
+        this.password = upsertPatientCommand.password();
+        this.idCardNo = upsertPatientCommand.idCardNo();
+        this.firstName = upsertPatientCommand.firstName();
+        this.lastName = upsertPatientCommand.lastName();
+        this.phoneNumber = upsertPatientCommand.phoneNumber();
+        this.birthday = upsertPatientCommand.birthday();
     }
 
     @Override
