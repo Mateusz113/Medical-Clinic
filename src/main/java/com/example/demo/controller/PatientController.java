@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.command.patient.UpsertPatientCommand;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.PasswordChangeForm;
-import com.example.demo.model.patient.FullPatientDataDTO;
 import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +37,8 @@ public class PatientController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public PatientDTO createPatient(@RequestBody FullPatientDataDTO patientData) {
-        return patientService.createPatient(patientData);
+    public PatientDTO createPatient(@RequestBody UpsertPatientCommand upsertPatientCommand) {
+        return patientService.createPatient(upsertPatientCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -48,8 +48,8 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public PatientDTO editPatient(@PathVariable("email") String email, @RequestBody FullPatientDataDTO patientData) {
-        return patientService.editPatient(email, patientData);
+    public PatientDTO editPatient(@PathVariable("email") String email, @RequestBody UpsertPatientCommand upsertPatientCommand) {
+        return patientService.editPatient(email, upsertPatientCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
