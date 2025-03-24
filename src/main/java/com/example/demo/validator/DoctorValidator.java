@@ -2,19 +2,14 @@ package com.example.demo.validator;
 
 import com.example.demo.exception.doctor.DoctorAlreadyExistsException;
 import com.example.demo.exception.doctor.DoctorIllegalDataException;
-import com.example.demo.exception.patient.PatientAlreadyExistsException;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.repository.DoctorRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
-@Component
-@RequiredArgsConstructor
 public class DoctorValidator {
     public static void validateDoctorCreation(FullDoctorDataDTO doctorData, DoctorRepository doctorRepository) {
         validateDoctorData(doctorData);
