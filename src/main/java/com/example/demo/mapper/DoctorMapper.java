@@ -1,16 +1,21 @@
 package com.example.demo.mapper;
 
+import com.example.demo.command.doctor.UpsertDoctorCommand;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.doctor.DoctorDTO;
-import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.doctor.SimpleDoctorDTO;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.SimpleFacilityDTO;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Mapper(componentModel = "spring")
 public interface DoctorMapper {
@@ -18,13 +23,24 @@ public interface DoctorMapper {
 
     SimpleDoctorDTO toSimpleDTO(Doctor doctor);
 
-    @Mapping(target = "id", expression = "java(null)")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "facilities", ignore = true)
-    Doctor toEntity(FullDoctorDataDTO doctorData);
+    @Mapping(target = "visits", ignore = true)
+    Doctor toEntity(UpsertDoctorCommand upsertDoctorCommand);
 
-    Set<Doctor> toEntities(Set<FullDoctorDataDTO> doctorDataDTOS);
+    Set<Doctor> toEntities(Set<UpsertDoctorCommand> upsertDoctorCommandSet);
 
     default SimpleFacilityDTO getSimpleFacilityDTO(Facility facility) {
         return Mappers.getMapper(FacilityMapper.class).toSimpleDTO(facility);
+    }
+
+    @AfterMapping
+    default void initDoctorCollections(@MappingTarget Doctor doctor) {
+        if (isNull(doctor.getFacilities())) {
+            doctor.setFacilities(new HashSet<>());
+        }
+        if (isNull(doctor.getVisits())) {
+            doctor.setVisits(new HashSet<>());
+        }
     }
 }
