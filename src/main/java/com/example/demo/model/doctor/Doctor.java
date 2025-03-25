@@ -1,5 +1,6 @@
 package com.example.demo.model.doctor;
 
+import com.example.demo.command.doctor.UpsertDoctorCommand;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.visit.Visit;
 import jakarta.persistence.Column;
@@ -48,12 +49,12 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor")
     private Set<Visit> visits = new HashSet<>();
 
-    public void update(FullDoctorDataDTO doctorData) {
-        this.email = doctorData.email();
-        this.password = doctorData.password();
-        this.firstName = doctorData.firstName();
-        this.lastName = doctorData.lastName();
-        this.specialization = doctorData.specialization();
+    public void update(UpsertDoctorCommand upsertDoctorCommand) {
+        this.email = upsertDoctorCommand.email();
+        this.password = upsertDoctorCommand.password();
+        this.firstName = upsertDoctorCommand.firstName();
+        this.lastName = upsertDoctorCommand.lastName();
+        this.specialization = upsertDoctorCommand.specialization();
     }
 
     public void addFacility(Facility facility) {
