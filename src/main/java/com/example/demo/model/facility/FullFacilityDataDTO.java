@@ -1,6 +1,6 @@
 package com.example.demo.model.facility;
 
-import com.example.demo.model.doctor.FullDoctorDataDTO;
+import com.example.demo.command.doctor.UpsertDoctorCommand;
 
 import java.util.List;
 
@@ -10,6 +10,6 @@ public record FullFacilityDataDTO(
         String zipCode,
         String street,
         String buildingNumber,
-        List<FullDoctorDataDTO> doctors
+        List<UpsertDoctorCommand> doctors
 ) {
 }
