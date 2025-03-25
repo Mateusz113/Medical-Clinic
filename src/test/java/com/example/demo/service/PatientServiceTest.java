@@ -220,6 +220,7 @@ public class PatientServiceTest {
         String email = "initial email";
         UpsertPatientCommand upsertPatientCommand = buildUpsertPatientCommand();
         Patient currentPatient = buildPatient();
+        currentPatient.setEmail(email);
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(currentPatient));
         when(patientRepository.existsByEmail(upsertPatientCommand.email())).thenReturn(true);
         //when
@@ -274,7 +275,6 @@ public class PatientServiceTest {
         //when
         PatientDTO result = patientService.editPatient(email, upsertPatientCommand);
         //then
-        assertInstanceOf(PatientDTO.class, result);
         assertEquals(expected.id(), result.id());
         assertEquals(expected.email(), result.email());
         assertEquals(expected.idCardNo(), result.idCardNo());
