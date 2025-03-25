@@ -1,8 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.command.doctor.UpdateDoctorFacilitiesCommand;
+import com.example.demo.command.doctor.UpsertDoctorCommand;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.DoctorDTO;
-import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.service.DoctorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/doctors")
 @RequiredArgsConstructor
@@ -28,8 +27,8 @@ public class DoctorController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public DoctorDTO createDoctor(@RequestBody FullDoctorDataDTO doctorData) {
-        return doctorService.createDoctor(doctorData);
+    public DoctorDTO createDoctor(@RequestBody UpsertDoctorCommand upsertDoctorCommand) {
+        return doctorService.createDoctor(upsertDoctorCommand);
     }
 
     @GetMapping
@@ -43,14 +42,14 @@ public class DoctorController {
     }
 
     @PutMapping("/{email}")
-    public DoctorDTO editDoctor(@PathVariable("email") String email, @RequestBody FullDoctorDataDTO doctorData) {
-        return doctorService.editDoctor(email, doctorData);
+    public DoctorDTO editDoctor(@PathVariable("email") String email, @RequestBody UpsertDoctorCommand upsertDoctorCommand) {
+        return doctorService.editDoctor(email, upsertDoctorCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{email}/facilities")
-    public void editFacilities(@PathVariable("email") String email, @RequestBody List<Long> facilitiesIds) {
-        doctorService.updateFacilities(email, facilitiesIds);
+    public void editFacilities(@PathVariable("email") String email, @RequestBody UpdateDoctorFacilitiesCommand updateDoctorFacilitiesCommand) {
+        doctorService.updateFacilities(email, updateDoctorFacilitiesCommand.facilitiesIds());
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
