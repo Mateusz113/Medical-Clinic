@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.command.patient.UpdatePatientPasswordCommand;
 import com.example.demo.command.patient.UpsertPatientCommand;
 import com.example.demo.model.PageableContentDto;
-import com.example.demo.model.PasswordChangeForm;
 import com.example.demo.model.patient.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +54,7 @@ public class PatientController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{email}/password")
-    public void editPatientPassword(@PathVariable("email") String email, @RequestBody PasswordChangeForm passwordChangeForm) {
-        patientService.editPatientPassword(email, passwordChangeForm.password());
+    public void editPatientPassword(@PathVariable("email") String email, @RequestBody UpdatePatientPasswordCommand updatePatientPasswordCommand) {
+        patientService.editPatientPassword(email, updatePatientPasswordCommand.password());
     }
 }
