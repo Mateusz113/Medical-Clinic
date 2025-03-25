@@ -17,6 +17,6 @@ public interface FacilityMapper {
 
     SimpleFacilityDTO toSimpleDTO(Facility facility);
 
-    @Mapping(target = "id", expression = "java(null)")
+    @Mapping(target = "id", ignore = true)
     Facility toEntity(FullFacilityDataDTO facilityData);
 }
