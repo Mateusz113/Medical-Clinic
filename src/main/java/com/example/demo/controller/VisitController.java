@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.command.visit.InsertVisitCommand;
 import com.example.demo.model.PageableContentDto;
-import com.example.demo.model.visit.VisitCreationDTO;
 import com.example.demo.model.visit.VisitDTO;
 import com.example.demo.service.VisitService;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ public class VisitController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public VisitDTO createVisit(@RequestBody VisitCreationDTO visitData) {
-        return visitService.createVisit(visitData);
+    public VisitDTO createVisit(@RequestBody InsertVisitCommand insertVisitCommand) {
+        return visitService.createVisit(insertVisitCommand);
     }
 
     @GetMapping
