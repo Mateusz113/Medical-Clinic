@@ -1,14 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.command.doctor.UpsertDoctorCommand;
+import com.example.demo.command.facility.UpsertFacilityCommand;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.DoctorMapper;
 import com.example.demo.mapper.FacilityMapper;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.Doctor;
-import com.example.demo.model.doctor.FullDoctorDataDTO;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FacilityDTO;
-import com.example.demo.model.facility.FullFacilityDataDTO;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.validator.FacilityValidator;
@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,18 +33,19 @@ public class FacilityService {
     private final DoctorRepository doctorRepository;
     private final FacilityMapper facilityMapper;
     private final DoctorMapper doctorMapper;
+    private final Clock clock;
 
     @Transactional
-    public FacilityDTO createFacility(FullFacilityDataDTO facilityData) {
-        Facility facility = saveFacilityToDatabase(facilityData);
+    public FacilityDTO createFacility(UpsertFacilityCommand upsertFacilityCommand) {
+        Facility facility = saveFacilityToDatabase(upsertFacilityCommand);
         return facilityMapper.toDTO(facility);
     }
 
     @Transactional
-    public List<FacilityDTO> createFacilities(List<FullFacilityDataDTO> facilityDataList) {
+    public List<FacilityDTO> createFacilities(List<UpsertFacilityCommand> upsertFacilityCommands) {
         List<Facility> facilities = new LinkedList<>();
-        facilityDataList.forEach(facilityData -> {
-            Facility facility = saveFacilityToDatabase(facilityData);
+        upsertFacilityCommands.forEach(upsertFacilityCommand -> {
+            Facility facility = saveFacilityToDatabase(upsertFacilityCommand);
             facilities.add(facility);
         });
         return facilityMapper.toDTOs(facilities);
@@ -59,10 +61,10 @@ public class FacilityService {
     }
 
     @Transactional
-    public FacilityDTO editFacility(Long id, FullFacilityDataDTO facilityData) {
+    public FacilityDTO editFacility(Long id, UpsertFacilityCommand upsertFacilityCommand) {
         Facility facility = getFacilityWithId(id);
-        FacilityValidator.validateFacilityEdit(facility, facilityData, facilityRepository);
-        facility.update(facilityData);
+        FacilityValidator.validateFacilityEdit(facility, upsertFacilityCommand, facilityRepository, clock);
+        facility.update(upsertFacilityCommand);
         facilityRepository.save(facility);
         return facilityMapper.toDTO(facility);
     }
@@ -75,7 +77,7 @@ public class FacilityService {
 
     private Facility getFacilityWithId(Long id) {
         return facilityRepository.findById(id)
-                .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(id), OffsetDateTime.now()));
+                .orElseThrow(() -> new FacilityNotFoundException("Facility with id: %d does not exist.".formatted(id), OffsetDateTime.now(clock)));
     }
 
     private PageableContentDto<FacilityDTO> getAllFacilitiesWithPageable(Pageable pageable) {
@@ -88,33 +90,33 @@ public class FacilityService {
                 .build();
     }
 
-    private Facility saveFacilityToDatabase(FullFacilityDataDTO facilityData) {
-        FacilityValidator.validateFacilityCreation(facilityData, facilityRepository);
-        Set<Doctor> allDoctors = getExistingDoctors(facilityData);
-        addMissingDoctors(facilityData, allDoctors);
-        Facility facility = facilityMapper.toEntity(facilityData);
+    private Facility saveFacilityToDatabase(UpsertFacilityCommand upsertFacilityCommand) {
+        FacilityValidator.validateFacilityCreation(upsertFacilityCommand, facilityRepository, clock);
+        Set<Doctor> allDoctors = getExistingDoctors(upsertFacilityCommand);
+        addMissingDoctors(upsertFacilityCommand, allDoctors);
+        Facility facility = facilityMapper.toEntity(upsertFacilityCommand);
         allDoctors.forEach((doctor -> doctor.addFacility(facility)));
         facility.setDoctors(allDoctors);
         return facilityRepository.save(facility);
     }
 
-    private Set<Doctor> getExistingDoctors(FullFacilityDataDTO facilityDataDTO) {
-        List<String> requestDoctorEmails = facilityDataDTO.doctors().stream()
-                .map(FullDoctorDataDTO::email)
+    private Set<Doctor> getExistingDoctors(UpsertFacilityCommand upsertFacilityCommand) {
+        List<String> requestDoctorEmails = upsertFacilityCommand.doctors().stream()
+                .map(UpsertDoctorCommand::email)
                 .toList();
         return new HashSet<>(doctorRepository.findAllByEmails(requestDoctorEmails));
     }
 
-    private void addMissingDoctors(FullFacilityDataDTO facilityDataDTO, Set<Doctor> existingDoctors) {
-        Set<FullDoctorDataDTO> missingDoctors = getMissingDoctors(existingDoctors, facilityDataDTO.doctors());
+    private void addMissingDoctors(UpsertFacilityCommand upsertFacilityCommand, Set<Doctor> existingDoctors) {
+        Set<UpsertDoctorCommand> missingDoctors = getMissingDoctors(existingDoctors, upsertFacilityCommand.doctors());
         existingDoctors.addAll(doctorMapper.toEntities(missingDoctors));
     }
 
-    private Set<FullDoctorDataDTO> getMissingDoctors(Set<Doctor> existingDoctors, List<FullDoctorDataDTO> doctors) {
+    private Set<UpsertDoctorCommand> getMissingDoctors(Set<Doctor> existingDoctors, List<UpsertDoctorCommand> upsertDoctorCommands) {
         List<String> existingDoctorEmails = existingDoctors.stream()
                 .map(Doctor::getEmail)
                 .toList();
-        return doctors.stream()
+        return upsertDoctorCommands.stream()
                 .filter(doctorData -> !existingDoctorEmails.contains(doctorData.email()))
                 .collect(Collectors.toSet());
     }
