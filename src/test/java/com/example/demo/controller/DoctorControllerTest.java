@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,13 +35,14 @@ public class DoctorControllerTest {
     private DoctorService doctorService;
 
     @Test
-    public void createDoctor_DataIsCorrect_ReturnsDoctorDtoWithStatus201() throws Exception {
+    public void createDoctor_ReturnsDoctorDtoWithStatus201() throws Exception {
         DoctorDTO doctorDTO = buildDoctorDto();
         UpsertDoctorCommand upsertDoctorCommand = buildUpsertDoctorCommand();
         when(doctorService.createDoctor(upsertDoctorCommand)).thenReturn(doctorDTO);
         mockMvc.perform(post("/doctors")
                         .content(objectMapper.writeValueAsString(upsertDoctorCommand))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -51,13 +53,14 @@ public class DoctorControllerTest {
     }
 
     @Test
-    public void getDoctors_ThereAreNoDoctors_ReturnsEmptyPageableContentDtoWithStatus200() throws Exception {
+    public void getDoctors_ReturnsEmptyPageableContentDtoWithStatus200() throws Exception {
         PageableContentDto<DoctorDTO> pageableContentDto = buildEmptyPageableContentDto();
         Pageable pageable = PageRequest.of(0, 10);
         when(doctorService.getDoctors(pageable)).thenReturn(pageableContentDto);
         mockMvc.perform(get("/doctors")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(0))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -66,13 +69,14 @@ public class DoctorControllerTest {
     }
 
     @Test
-    public void getDoctors_ThereAreDoctors_ReturnsPageableContentDtoWithStatus200() throws Exception {
+    public void getDoctors_ReturnsPageableContentDtoWithStatus200() throws Exception {
         PageableContentDto<DoctorDTO> pageableContentDto = buildFullPageableContentDto();
         Pageable pageable = PageRequest.of(0, 10);
         when(doctorService.getDoctors(pageable)).thenReturn(pageableContentDto);
         mockMvc.perform(get("/doctors")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(2))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -93,11 +97,12 @@ public class DoctorControllerTest {
     }
 
     @Test
-    public void getDoctorByEmail_DoctorExists_ReturnsDoctorDtoWithStatus200() throws Exception {
+    public void getDoctorByEmail_ReturnsDoctorDtoWithStatus200() throws Exception {
         String email = "email";
         DoctorDTO doctorDTO = buildDoctorDto();
         when(doctorService.getDoctorByEmail(email)).thenReturn(doctorDTO);
         mockMvc.perform(get("/doctors/email"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -108,7 +113,7 @@ public class DoctorControllerTest {
     }
 
     @Test
-    public void editDoctor_EditsDoctor_ReturnsDoctorDtoWithStatus200() throws Exception {
+    public void editDoctor_ReturnsDoctorDtoWithStatus200() throws Exception {
         String email = "email";
         UpsertDoctorCommand upsertDoctorCommand = buildUpsertDoctorCommand();
         DoctorDTO doctorDTO = buildDoctorDto();
@@ -116,6 +121,7 @@ public class DoctorControllerTest {
         mockMvc.perform(put("/doctors/email")
                         .content(objectMapper.writeValueAsString(upsertDoctorCommand))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -126,20 +132,22 @@ public class DoctorControllerTest {
     }
 
     @Test
-    public void editFacilities_EditsDoctorFacilities_ReturnsNoBodyWithStatus204() throws Exception {
+    public void editFacilities_ReturnsNoBodyWithStatus204() throws Exception {
         String email = "email";
         UpdateDoctorFacilitiesCommand updateDoctorFacilitiesCommand = buildUpdateDoctorFacilitiesCommand();
         mockMvc.perform(patch("/doctors/email/facilities")
                         .content(objectMapper.writeValueAsString(updateDoctorFacilitiesCommand))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isNoContent());
         verify(doctorService, times(1)).updateFacilities(email, updateDoctorFacilitiesCommand.facilitiesIds());
     }
 
     @Test
-    public void deleteDoctor_DoctorExists_ReturnsNoBodyWithStatus204() throws Exception {
+    public void deleteDoctor_ReturnsNoBodyWithStatus204() throws Exception {
         String email = "email";
         mockMvc.perform(delete("/doctors/email"))
+                .andDo(print())
                 .andExpect(status().isNoContent());
         verify(doctorService, times(1)).deleteDoctor(email);
     }

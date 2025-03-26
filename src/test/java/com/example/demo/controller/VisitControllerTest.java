@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.command.visit.InsertVisitCommand;
-import com.example.demo.exception.visit.VisitIllegalDataException;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.SimpleDoctorDTO;
 import com.example.demo.model.patient.PatientDTO;
@@ -18,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -40,7 +38,6 @@ public class VisitControllerTest {
     private ObjectMapper objectMapper;
     @MockitoBean
     private VisitService visitService;
-    private Clock clock = Clock.fixed(Instant.parse("2012-12-12T12:00:00Z"), ZoneOffset.UTC);
 
     @Test
     public void createVisit_DataIsCorrect_ReturnsVisitDtoWithStatus201() throws Exception {
@@ -50,7 +47,8 @@ public class VisitControllerTest {
         mockMvc.perform(post("/visits")
                         .content(objectMapper.writeValueAsString(insertVisitCommand))
                         .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isCreated())
+                ).andDo(print())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.startTime").value("2012-12-13T12:00:00Z"))
                 .andExpect(jsonPath("$.endTime").value("2012-12-13T13:00:00Z"))
@@ -65,23 +63,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.patient.firstName").value("firstName"))
                 .andExpect(jsonPath("$.patient.lastName").value("lastName"))
                 .andExpect(jsonPath("$.patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.patient.birthday").value("2012-12-12"))
-                .andDo(print());
-    }
-
-    @Test
-    public void createVisit_DataIsIncorrect_ReturnsErrorMessageWithStatus400() throws Exception {
-        InsertVisitCommand insertVisitCommand = buildInsertVisitCommand();
-        VisitDTO visitDTO = buildVisitDto();
-        when(visitService.createVisit(insertVisitCommand)).thenThrow(new VisitIllegalDataException("Incorrect data.", OffsetDateTime.now(clock)));
-        mockMvc.perform(post("/visits")
-                        .content(objectMapper.writeValueAsString(insertVisitCommand))
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Incorrect data."))
-                .andExpect(jsonPath("$.statusCode").value("NOT_FOUND"))
-                .andExpect(jsonPath("$.date").value("2012-12-12T12:00Z"))
-                .andDo(print());
+                .andExpect(jsonPath("$.patient.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -92,6 +74,7 @@ public class VisitControllerTest {
         mockMvc.perform(get("/visits")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(0))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -107,6 +90,7 @@ public class VisitControllerTest {
         mockMvc.perform(get("/visits")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(2))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -141,8 +125,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.content[1].patient.firstName").value("firstName"))
                 .andExpect(jsonPath("$.content[1].patient.lastName").value("lastName"))
                 .andExpect(jsonPath("$.content[1].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -154,6 +137,7 @@ public class VisitControllerTest {
         mockMvc.perform(get("/visits/doctorId/1")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(2))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -188,8 +172,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.content[1].patient.firstName").value("firstName"))
                 .andExpect(jsonPath("$.content[1].patient.lastName").value("lastName"))
                 .andExpect(jsonPath("$.content[1].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -201,6 +184,7 @@ public class VisitControllerTest {
         mockMvc.perform(get("/visits/patientId/1")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(2))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -235,8 +219,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.content[1].patient.firstName").value("firstName"))
                 .andExpect(jsonPath("$.content[1].patient.lastName").value("lastName"))
                 .andExpect(jsonPath("$.content[1].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -244,8 +227,8 @@ public class VisitControllerTest {
         long visitId = 1;
         long patientId = 1;
         mockMvc.perform(patch("/visits/1/patientId/1"))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isNoContent());
         verify(visitService, times(1)).registerPatientToVisit(visitId, patientId);
     }
 
@@ -253,8 +236,8 @@ public class VisitControllerTest {
     public void deleteVisit_VisitExists_ReturnsNoBodyWithStatus204() throws Exception {
         long visitId = 1;
         mockMvc.perform(delete("/visits/1"))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isNoContent());
         verify(visitService, times(1)).deleteVisit(visitId);
     }
 

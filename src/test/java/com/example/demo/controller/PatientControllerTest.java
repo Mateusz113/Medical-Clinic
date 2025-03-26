@@ -43,6 +43,7 @@ public class PatientControllerTest {
         mockMvc.perform(get("/patients")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(0))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -58,6 +59,7 @@ public class PatientControllerTest {
         mockMvc.perform(get("/patients")
                         .param("page", "0")
                         .param("size", "10"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalEntries").value(2))
                 .andExpect(jsonPath("$.totalNumberOfPages").value(1))
@@ -84,6 +86,7 @@ public class PatientControllerTest {
         String email = "email";
         when(patientService.getPatient(email)).thenReturn(buildPatientDto());
         mockMvc.perform(get("/patients/email"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -91,8 +94,7 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("firstName"))
                 .andExpect(jsonPath("$.lastName").value("lastName"))
                 .andExpect(jsonPath("$.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -102,6 +104,7 @@ public class PatientControllerTest {
         mockMvc.perform(post("/patients")
                         .content(objectMapper.writeValueAsString(upsertPatientCommand))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -109,8 +112,7 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("firstName"))
                 .andExpect(jsonPath("$.lastName").value("lastName"))
                 .andExpect(jsonPath("$.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -131,6 +133,7 @@ public class PatientControllerTest {
         mockMvc.perform(put("/patients/email")
                         .content(objectMapper.writeValueAsString(upsertPatientCommand))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("email"))
@@ -138,8 +141,7 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$.firstName").value("firstName"))
                 .andExpect(jsonPath("$.lastName").value("lastName"))
                 .andExpect(jsonPath("$.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.birthday").value("2012-12-12"))
-                .andDo(print());
+                .andExpect(jsonPath("$.birthday").value("2012-12-12"));
     }
 
     @Test
@@ -149,8 +151,8 @@ public class PatientControllerTest {
         mockMvc.perform(patch("/patients/email/password")
                         .content(objectMapper.writeValueAsString(updatePatientPasswordCommand))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isNoContent());
         verify(patientService, times(1)).editPatientPassword(email, updatePatientPasswordCommand.password());
     }
 
