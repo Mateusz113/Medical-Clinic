@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.command.facility.UpsertFacilityCommand;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.facility.FacilityDTO;
-import com.example.demo.model.facility.FullFacilityDataDTO;
 import com.example.demo.service.FacilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,14 +27,14 @@ public class FacilityController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public FacilityDTO createFacilities(@RequestBody FullFacilityDataDTO facilityData) {
-        return facilityService.createFacility(facilityData);
+    public FacilityDTO createFacility(@RequestBody UpsertFacilityCommand upsertFacilityCommand) {
+        return facilityService.createFacility(upsertFacilityCommand);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/bulk")
-    public List<FacilityDTO> createFacilities(@RequestBody List<FullFacilityDataDTO> facilitiesData) {
-        return facilityService.createFacilities(facilitiesData);
+    public List<FacilityDTO> createFacilities(@RequestBody List<UpsertFacilityCommand> upsertFacilityCommands) {
+        return facilityService.createFacilities(upsertFacilityCommands);
     }
 
     @GetMapping
@@ -48,8 +48,8 @@ public class FacilityController {
     }
 
     @PutMapping("/{id}")
-    public FacilityDTO editFacility(@PathVariable("id") Long id, @RequestBody FullFacilityDataDTO facilityData) {
-        return facilityService.editFacility(id, facilityData);
+    public FacilityDTO editFacility(@PathVariable("id") Long id, @RequestBody UpsertFacilityCommand upsertFacilityCommand) {
+        return facilityService.editFacility(id, upsertFacilityCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
