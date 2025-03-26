@@ -1,5 +1,6 @@
 package com.example.demo.model.facility;
 
+import com.example.demo.command.facility.UpsertFacilityCommand;
 import com.example.demo.model.doctor.Doctor;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,12 +39,12 @@ public class Facility {
     @ManyToMany(mappedBy = "facilities", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Doctor> doctors = new HashSet<>();
 
-    public void update(FullFacilityDataDTO facilityData) {
-        this.name = facilityData.name();
-        this.city = facilityData.city();
-        this.zipCode = facilityData.zipCode();
-        this.street = facilityData.street();
-        this.buildingNumber = facilityData.buildingNumber();
+    public void update(UpsertFacilityCommand upsertFacilityCommand) {
+        this.name = upsertFacilityCommand.name();
+        this.city = upsertFacilityCommand.city();
+        this.zipCode = upsertFacilityCommand.zipCode();
+        this.street = upsertFacilityCommand.street();
+        this.buildingNumber = upsertFacilityCommand.buildingNumber();
     }
 
     @Override
