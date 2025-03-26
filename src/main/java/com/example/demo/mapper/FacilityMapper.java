@@ -1,15 +1,18 @@
 package com.example.demo.mapper;
 
+import com.example.demo.command.doctor.UpsertDoctorCommand;
+import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FacilityDTO;
-import com.example.demo.model.facility.FullFacilityDataDTO;
 import com.example.demo.model.facility.SimpleFacilityDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = DoctorMapper.class)
+@Mapper(componentModel = "spring")
 public interface FacilityMapper {
     FacilityDTO toDTO(Facility facility);
 
@@ -18,5 +21,9 @@ public interface FacilityMapper {
     SimpleFacilityDTO toSimpleDTO(Facility facility);
 
     @Mapping(target = "id", ignore = true)
-    Facility toEntity(FullFacilityDataDTO facilityData);
+    Facility toEntity(UpsertFacilityCommand upsertFacilityCommand);
+
+    default Doctor getDoctor(UpsertDoctorCommand upsertDoctorCommand) {
+        return Mappers.getMapper(DoctorMapper.class).toEntity(upsertDoctorCommand);
+    }
 }
