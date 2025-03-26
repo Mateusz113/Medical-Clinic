@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.command.visit.InsertVisitCommand;
 import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.patient.PatientNotFoundException;
 import com.example.demo.exception.visit.VisitNotFoundException;
@@ -8,7 +9,6 @@ import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.patient.Patient;
 import com.example.demo.model.visit.Visit;
-import com.example.demo.model.visit.VisitCreationDTO;
 import com.example.demo.model.visit.VisitDTO;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.PatientRepository;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
 
 @Service
@@ -29,12 +30,13 @@ public class VisitService {
     private final VisitMapper visitMapper;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
+    private final Clock clock;
 
     @Transactional
-    public VisitDTO createVisit(VisitCreationDTO visitData) {
-        VisitValidator.validateVisitData(visitData, visitRepository, doctorRepository);
-        Visit visit = visitMapper.toEntity(visitData);
-        Doctor doctor = getDoctorWithId(visitData.doctorId());
+    public VisitDTO createVisit(InsertVisitCommand insertVisitCommand) {
+        VisitValidator.validateVisitData(insertVisitCommand, visitRepository, doctorRepository, clock);
+        Visit visit = visitMapper.toEntity(insertVisitCommand);
+        Doctor doctor = getDoctorWithId(insertVisitCommand.doctorId());
         visit.setDoctor(doctor);
         visit = visitRepository.save(visit);
         return visitMapper.toDto(visit);
@@ -59,7 +61,7 @@ public class VisitService {
     public void registerPatientToVisit(Long visitId, Long patientId) {
         Visit visit = getVisitWithId(visitId);
         Patient patient = getPatientWithId(patientId);
-        VisitValidator.validateVisitAvailability(visit);
+        VisitValidator.validateVisitAvailability(visit, clock);
         visit.setPatient(patient);
         visitRepository.save(visit);
     }
@@ -72,17 +74,17 @@ public class VisitService {
 
     private Doctor getDoctorWithId(Long doctorId) {
         return doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new DoctorNotFoundException("Doctor with id: %d does not exist.".formatted(doctorId), OffsetDateTime.now()));
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor with id: %d does not exist.".formatted(doctorId), OffsetDateTime.now(clock)));
     }
 
     private Visit getVisitWithId(Long visitId) {
         return visitRepository.findById(visitId)
-                .orElseThrow(() -> new VisitNotFoundException("Visit with id: %d does not exist.".formatted(visitId), OffsetDateTime.now()));
+                .orElseThrow(() -> new VisitNotFoundException("Visit with id: %d does not exist.".formatted(visitId), OffsetDateTime.now(clock)));
     }
 
     private Patient getPatientWithId(Long patientId) {
         return patientRepository.findById(patientId)
-                .orElseThrow(() -> new PatientNotFoundException("Patient with id: %d does not exist.".formatted(patientId), OffsetDateTime.now()));
+                .orElseThrow(() -> new PatientNotFoundException("Patient with id: %d does not exist.".formatted(patientId), OffsetDateTime.now(clock)));
     }
 
     private PageableContentDto<VisitDTO> createPageableContentDto(Page<Visit> visits, Pageable pageable) {
