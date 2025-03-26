@@ -1,8 +1,11 @@
-package com.example.demo.model.visit;
+package com.example.demo.command.visit;
+
+import lombok.Builder;
 
 import java.time.OffsetDateTime;
 
-public record VisitCreationDTO(
+@Builder
+public record InsertVisitCommand(
         OffsetDateTime startTime,
         OffsetDateTime endTime,
         Long doctorId
