@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.command.facility.InsertFacilityCommand;
+import com.example.demo.command.facility.UpdateFacilityCommand;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.facility.FacilityDTO;
 import com.example.demo.service.FacilityService;
@@ -35,11 +36,11 @@ public class FacilityControllerTest {
 
     @Test
     public void createFacility_ReturnsFacilityDtoWithStatus201() throws Exception {
-        UpsertFacilityCommand upsertFacilityCommand = buildUpsertFacilityCommand();
+        InsertFacilityCommand insertFacilityCommand = buildInsertFacilityCommand();
         FacilityDTO facilityDTO = buildFacilityDto();
-        when(facilityService.createFacility(upsertFacilityCommand)).thenReturn(facilityDTO);
+        when(facilityService.createFacility(insertFacilityCommand)).thenReturn(facilityDTO);
         mockMvc.perform(post("/facilities")
-                        .content(objectMapper.writeValueAsString(upsertFacilityCommand))
+                        .content(objectMapper.writeValueAsString(insertFacilityCommand))
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isCreated())
@@ -54,11 +55,11 @@ public class FacilityControllerTest {
 
     @Test
     public void createFacilities_ReturnsFacilityDtoListWithStatus201() throws Exception {
-        List<UpsertFacilityCommand> upsertFacilityCommands = List.of(buildUpsertFacilityCommand(), buildUpsertFacilityCommand());
+        List<InsertFacilityCommand> insertFacilityCommands = List.of(buildInsertFacilityCommand(), buildInsertFacilityCommand());
         List<FacilityDTO> facilityDTOS = List.of(buildFacilityDto(), buildFacilityDto());
-        when(facilityService.createFacilities(upsertFacilityCommands)).thenReturn(facilityDTOS);
+        when(facilityService.createFacilities(insertFacilityCommands)).thenReturn(facilityDTOS);
         mockMvc.perform(post("/facilities/bulk")
-                        .content(objectMapper.writeValueAsString(upsertFacilityCommands))
+                        .content(objectMapper.writeValueAsString(insertFacilityCommands))
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isCreated())
@@ -125,13 +126,28 @@ public class FacilityControllerTest {
     }
 
     @Test
+    public void getFacilityById_ReturnsFacilityDtoWithStatus200() throws Exception {
+        long facilityId = 1;
+        when(facilityService.getFacilityById(facilityId)).thenReturn(buildFacilityDto());
+        mockMvc.perform(get("/facilities/1"))
+                .andDo(print())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.city").value("city"))
+                .andExpect(jsonPath("$.zipCode").value("zipCode"))
+                .andExpect(jsonPath("$.street").value("street"))
+                .andExpect(jsonPath("$.buildingNumber").value("buildingNumber"))
+                .andExpect(jsonPath("$.doctors").isEmpty());
+    }
+
+    @Test
     public void editFacility_ReturnsFacilityDtoWithStatus200() throws Exception {
         long facilityId = 1;
-        UpsertFacilityCommand upsertFacilityCommand = buildUpsertFacilityCommand();
+        UpdateFacilityCommand updateFacilityCommand = buildUpdateFacilityCommand();
         FacilityDTO facilityDTO = buildFacilityDto();
-        when(facilityService.editFacility(facilityId, upsertFacilityCommand)).thenReturn(facilityDTO);
+        when(facilityService.editFacility(facilityId, updateFacilityCommand)).thenReturn(facilityDTO);
         mockMvc.perform(put("/facilities/1")
-                        .content(objectMapper.writeValueAsString(upsertFacilityCommand))
+                        .content(objectMapper.writeValueAsString(updateFacilityCommand))
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isOk())
@@ -140,8 +156,7 @@ public class FacilityControllerTest {
                 .andExpect(jsonPath("$.city").value("city"))
                 .andExpect(jsonPath("$.zipCode").value("zipCode"))
                 .andExpect(jsonPath("$.street").value("street"))
-                .andExpect(jsonPath("$.buildingNumber").value("buildingNumber"))
-                .andExpect(jsonPath("$.doctors").isEmpty());
+                .andExpect(jsonPath("$.buildingNumber").value("buildingNumber"));
     }
 
     @Test
@@ -153,14 +168,24 @@ public class FacilityControllerTest {
         verify(facilityService, times(1)).deleteFacility(facilityId);
     }
 
-    private UpsertFacilityCommand buildUpsertFacilityCommand() {
-        return UpsertFacilityCommand.builder()
+    private InsertFacilityCommand buildInsertFacilityCommand() {
+        return InsertFacilityCommand.builder()
                 .name("name")
                 .city("city")
                 .zipCode("zipCode")
                 .street("street")
                 .buildingNumber("buildingNumber")
                 .doctors(List.of())
+                .build();
+    }
+
+    private UpdateFacilityCommand buildUpdateFacilityCommand() {
+        return UpdateFacilityCommand.builder()
+                .name("name")
+                .city("city")
+                .zipCode("zipCode")
+                .street("street")
+                .buildingNumber("buildingNumber")
                 .build();
     }
 
