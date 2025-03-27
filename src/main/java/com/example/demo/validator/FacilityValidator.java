@@ -1,6 +1,7 @@
 package com.example.demo.validator;
 
-import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.command.facility.InsertFacilityCommand;
+import com.example.demo.command.facility.UpdateFacilityCommand;
 import com.example.demo.exception.facility.FacilityAlreadyExistsException;
 import com.example.demo.exception.facility.FacilityIllegalDataException;
 import com.example.demo.model.facility.Facility;
@@ -11,25 +12,36 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 
 public class FacilityValidator {
-    public static void validateFacilityCreation(UpsertFacilityCommand upsertFacilityCommand, FacilityRepository facilityRepository, Clock clock) {
-        validateFacilityData(upsertFacilityCommand, clock);
-        validateNameAvailability(upsertFacilityCommand.name(), facilityRepository, clock);
-        DoctorValidator.validateDoctorBulkCreation(upsertFacilityCommand.doctors(), clock);
+    public static void validateFacilityCreation(InsertFacilityCommand insertFacilityCommand, FacilityRepository facilityRepository, Clock clock) {
+        validateInsertFacilityCommand(insertFacilityCommand, clock);
+        validateNameAvailability(insertFacilityCommand.name(), facilityRepository, clock);
+        DoctorValidator.validateDoctorBulkCreation(insertFacilityCommand.doctors(), clock);
     }
 
-    public static void validateFacilityEdit(Facility facility, UpsertFacilityCommand upsertFacilityCommand, FacilityRepository facilityRepository, Clock clock) {
-        validateFacilityData(upsertFacilityCommand, clock);
-        if (facilityRepository.existsByName(upsertFacilityCommand.name()) && !Objects.equals(facility.getName(), upsertFacilityCommand.name())) {
-            throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(upsertFacilityCommand.name()), OffsetDateTime.now(clock));
+    public static void validateFacilityEdit(Facility facility, UpdateFacilityCommand updateFacilityCommand, FacilityRepository facilityRepository, Clock clock) {
+        validateUpdateFacilityCommand(updateFacilityCommand, clock);
+        if (facilityRepository.existsByName(updateFacilityCommand.name()) && !Objects.equals(facility.getName(), updateFacilityCommand.name())) {
+            throw new FacilityAlreadyExistsException("Facility with name: %s already exists.".formatted(updateFacilityCommand.name()), OffsetDateTime.now(clock));
         }
     }
 
-    private static void validateFacilityData(UpsertFacilityCommand upsertFacilityCommand, Clock clock) {
-        if (Objects.isNull(upsertFacilityCommand.name())
-                || Objects.isNull(upsertFacilityCommand.city())
-                || Objects.isNull(upsertFacilityCommand.zipCode())
-                || Objects.isNull(upsertFacilityCommand.street())
-                || Objects.isNull(upsertFacilityCommand.buildingNumber())) {
+    private static void validateInsertFacilityCommand(InsertFacilityCommand insertFacilityCommand, Clock clock) {
+        if (Objects.isNull(insertFacilityCommand.name())
+                || Objects.isNull(insertFacilityCommand.city())
+                || Objects.isNull(insertFacilityCommand.zipCode())
+                || Objects.isNull(insertFacilityCommand.street())
+                || Objects.isNull(insertFacilityCommand.buildingNumber())
+                || Objects.isNull(insertFacilityCommand.doctors())) {
+            throw new FacilityIllegalDataException("There cannot be null fields in facility.", OffsetDateTime.now(clock));
+        }
+    }
+
+    private static void validateUpdateFacilityCommand(UpdateFacilityCommand updateFacilityCommand, Clock clock) {
+        if (Objects.isNull(updateFacilityCommand.name())
+                || Objects.isNull(updateFacilityCommand.city())
+                || Objects.isNull(updateFacilityCommand.zipCode())
+                || Objects.isNull(updateFacilityCommand.street())
+                || Objects.isNull(updateFacilityCommand.buildingNumber())) {
             throw new FacilityIllegalDataException("There cannot be null fields in facility.", OffsetDateTime.now(clock));
         }
     }
