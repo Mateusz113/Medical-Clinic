@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.command.facility.InsertFacilityCommand;
+import com.example.demo.command.facility.UpdateFacilityCommand;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.facility.FacilityDTO;
 import com.example.demo.service.FacilityService;
@@ -27,14 +28,14 @@ public class FacilityController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public FacilityDTO createFacility(@RequestBody UpsertFacilityCommand upsertFacilityCommand) {
-        return facilityService.createFacility(upsertFacilityCommand);
+    public FacilityDTO createFacility(@RequestBody InsertFacilityCommand insertFacilityCommand) {
+        return facilityService.createFacility(insertFacilityCommand);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/bulk")
-    public List<FacilityDTO> createFacilities(@RequestBody List<UpsertFacilityCommand> upsertFacilityCommands) {
-        return facilityService.createFacilities(upsertFacilityCommands);
+    public List<FacilityDTO> createFacilities(@RequestBody List<InsertFacilityCommand> insertFacilityCommands) {
+        return facilityService.createFacilities(insertFacilityCommands);
     }
 
     @GetMapping
@@ -48,8 +49,8 @@ public class FacilityController {
     }
 
     @PutMapping("/{id}")
-    public FacilityDTO editFacility(@PathVariable("id") Long id, @RequestBody UpsertFacilityCommand upsertFacilityCommand) {
-        return facilityService.editFacility(id, upsertFacilityCommand);
+    public FacilityDTO editFacility(@PathVariable("id") Long id, @RequestBody UpdateFacilityCommand updateFacilityCommand) {
+        return facilityService.editFacility(id, updateFacilityCommand);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
