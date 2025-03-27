@@ -1,7 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.command.doctor.UpsertDoctorCommand;
-import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.command.facility.InsertFacilityCommand;
+import com.example.demo.command.facility.UpdateFacilityCommand;
 import com.example.demo.exception.facility.FacilityNotFoundException;
 import com.example.demo.mapper.DoctorMapper;
 import com.example.demo.mapper.FacilityMapper;
@@ -36,15 +37,15 @@ public class FacilityService {
     private final Clock clock;
 
     @Transactional
-    public FacilityDTO createFacility(UpsertFacilityCommand upsertFacilityCommand) {
-        Facility facility = saveFacilityToDatabase(upsertFacilityCommand);
+    public FacilityDTO createFacility(InsertFacilityCommand insertFacilityCommand) {
+        Facility facility = saveFacilityToDatabase(insertFacilityCommand);
         return facilityMapper.toDTO(facility);
     }
 
     @Transactional
-    public List<FacilityDTO> createFacilities(List<UpsertFacilityCommand> upsertFacilityCommands) {
+    public List<FacilityDTO> createFacilities(List<InsertFacilityCommand> insertFacilityCommands) {
         List<Facility> facilities = new LinkedList<>();
-        upsertFacilityCommands.forEach(upsertFacilityCommand -> {
+        insertFacilityCommands.forEach(upsertFacilityCommand -> {
             Facility facility = saveFacilityToDatabase(upsertFacilityCommand);
             facilities.add(facility);
         });
@@ -61,10 +62,10 @@ public class FacilityService {
     }
 
     @Transactional
-    public FacilityDTO editFacility(Long id, UpsertFacilityCommand upsertFacilityCommand) {
+    public FacilityDTO editFacility(Long id, UpdateFacilityCommand updateFacilityCommand) {
         Facility facility = getFacilityWithId(id);
-        FacilityValidator.validateFacilityEdit(facility, upsertFacilityCommand, facilityRepository, clock);
-        facility.update(upsertFacilityCommand);
+        FacilityValidator.validateFacilityEdit(facility, updateFacilityCommand, facilityRepository, clock);
+        facility.update(updateFacilityCommand);
         facilityRepository.save(facility);
         return facilityMapper.toDTO(facility);
     }
@@ -90,25 +91,25 @@ public class FacilityService {
                 .build();
     }
 
-    private Facility saveFacilityToDatabase(UpsertFacilityCommand upsertFacilityCommand) {
-        FacilityValidator.validateFacilityCreation(upsertFacilityCommand, facilityRepository, clock);
-        Set<Doctor> allDoctors = getExistingDoctors(upsertFacilityCommand);
-        addMissingDoctors(upsertFacilityCommand, allDoctors);
-        Facility facility = facilityMapper.toEntity(upsertFacilityCommand);
+    private Facility saveFacilityToDatabase(InsertFacilityCommand insertFacilityCommand) {
+        FacilityValidator.validateFacilityCreation(insertFacilityCommand, facilityRepository, clock);
+        Set<Doctor> allDoctors = getExistingDoctors(insertFacilityCommand);
+        addMissingDoctors(insertFacilityCommand, allDoctors);
+        Facility facility = facilityMapper.toEntity(insertFacilityCommand);
         allDoctors.forEach((doctor -> doctor.addFacility(facility)));
         facility.setDoctors(allDoctors);
         return facilityRepository.save(facility);
     }
 
-    private Set<Doctor> getExistingDoctors(UpsertFacilityCommand upsertFacilityCommand) {
-        List<String> requestDoctorEmails = upsertFacilityCommand.doctors().stream()
+    private Set<Doctor> getExistingDoctors(InsertFacilityCommand insertFacilityCommand) {
+        List<String> requestDoctorEmails = insertFacilityCommand.doctors().stream()
                 .map(UpsertDoctorCommand::email)
                 .toList();
         return new HashSet<>(doctorRepository.findAllByEmails(requestDoctorEmails));
     }
 
-    private void addMissingDoctors(UpsertFacilityCommand upsertFacilityCommand, Set<Doctor> existingDoctors) {
-        Set<UpsertDoctorCommand> missingDoctors = getMissingDoctors(existingDoctors, upsertFacilityCommand.doctors());
+    private void addMissingDoctors(InsertFacilityCommand insertFacilityCommand, Set<Doctor> existingDoctors) {
+        Set<UpsertDoctorCommand> missingDoctors = getMissingDoctors(existingDoctors, insertFacilityCommand.doctors());
         existingDoctors.addAll(doctorMapper.toEntities(missingDoctors));
     }
 
