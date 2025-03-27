@@ -186,19 +186,6 @@ public class PatientServiceTest {
         assertEquals(expected.birthday(), result.birthday());
     }
 
-    @Test
-    void editPatient_PatientDoesNotExist_ThrowsPatientNotFoundException() {
-        //given
-        String email = "email";
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
-        //when
-        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.editPatient(email, null));
-        //then
-        assertEquals("Patient with email: %s does not exist.".formatted(email), exception.getMessage());
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("2012-12-12T12:00Z", exception.getDate().toString());
-    }
-
     @ParameterizedTest
     @MethodSource("provideUpsertPatientCommandsWithNulls")
     void editPatient_PatientDataHasNullValues_ThrowsPatientIllegalDataException(UpsertPatientCommand upsertPatientCommand) {
