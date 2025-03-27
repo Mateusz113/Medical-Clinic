@@ -368,12 +368,6 @@ public class DoctorServiceTest {
                 .build();
     }
 
-    private UpdateDoctorFacilitiesCommand buildUpdateDoctorFacilitiesCommand() {
-        return UpdateDoctorFacilitiesCommand.builder()
-                .facilitiesIds(List.of(1L, 2L))
-                .build();
-    }
-
     private UpsertDoctorCommand getUpsertDoctorCommand(String email, String password, String firstName, String lastName, String specialization) {
         return UpsertDoctorCommand.builder()
                 .email(email)
