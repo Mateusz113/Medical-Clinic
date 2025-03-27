@@ -1,7 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.command.doctor.UpsertDoctorCommand;
-import com.example.demo.command.facility.UpsertFacilityCommand;
+import com.example.demo.command.facility.InsertFacilityCommand;
 import com.example.demo.model.doctor.Doctor;
 import com.example.demo.model.facility.Facility;
 import com.example.demo.model.facility.FacilityDTO;
@@ -21,7 +21,7 @@ public interface FacilityMapper {
     SimpleFacilityDTO toSimpleDTO(Facility facility);
 
     @Mapping(target = "id", ignore = true)
-    Facility toEntity(UpsertFacilityCommand upsertFacilityCommand);
+    Facility toEntity(InsertFacilityCommand insertFacilityCommand);
 
     default Doctor getDoctor(UpsertDoctorCommand upsertDoctorCommand) {
         return Mappers.getMapper(DoctorMapper.class).toEntity(upsertDoctorCommand);
