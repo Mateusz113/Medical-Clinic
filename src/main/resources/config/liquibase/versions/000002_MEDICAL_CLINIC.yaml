@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2-1
+      author: Mateusz113
+      changes:
+        - createTable:
+            tableName: DOCTORS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: first_name
+                  type: varchar(255)
+              - column:
+                  name: last_name
+                  type: varchar(255)
+              - column:
+                  name: specialization
+                  type: varchar(255)
+  - changeSet:
+      id: 2-2
+      author: Mateusz113
+      changes:
+        - createTable:
+            tableName: FACILITIES
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: city
+                  type: varchar(255)
+              - column:
+                  name: zip_code
+                  type: varchar(255)
+              - column:
+                  name: street
+                  type: varchar(255)
+              - column:
+                  name: building_number
+                  type: varchar(255)
+        - createTable:
+            tableName: FACILITIES_DOCTORS
+            columns:
+              - column:
+                  name: doctor_id
+                  type: bigint
+                  constraints:
+                    foreignKey: true
+                    foreignKeyName: fk_facility_doctor
+                    references: DOCTORS(id)
+              - column:
+                  name: facility_id
+                  type: bigint
+                  constraints:
+                    foreignKey: true
+                    foreignKeyName: fk_doctor_facility
+                    references: FACILITIES(id)
