@@ -30,7 +30,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Doctor {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
     @Column(unique = true)
