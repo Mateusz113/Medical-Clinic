@@ -1,6 +1,5 @@
 package com.example.demo.model.facility;
 
-import com.example.demo.command.facility.InsertFacilityCommand;
 import com.example.demo.command.facility.UpdateFacilityCommand;
 import com.example.demo.model.doctor.Doctor;
 import jakarta.persistence.CascadeType;
