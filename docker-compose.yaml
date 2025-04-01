@@ -1,0 +1,7 @@
+version: '3'
+services:
+  medical-clinic:
+    container_name: medical-clinic
+    image: medical-clinic:0.0.1-SNAPSHOT
+    ports:
+      - "8081:8081"
