@@ -2,6 +2,29 @@ version: '3'
 services:
   medical-clinic:
     container_name: medical-clinic
-    image: medical-clinic:0.0.1-SNAPSHOT
+    build:
+      context: .
+    image: "medical-clinic:${MEDICAL_CLINIC_VERSION}"
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_USER}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - medical-clinic-network
+  postgres:
+    container_name: db
+    image: "postgres:${POSTGRES_VERSION}"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - medical-clinic-network
+networks:
+  medical-clinic-network: { }
