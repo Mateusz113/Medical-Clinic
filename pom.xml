@@ -29,6 +29,7 @@
     <properties>
         <java.version>21</java.version>
         <mapstruct.version>1.6.3</mapstruct.version>
+        <postgres.version>42.7.5</postgres.version>
     </properties>
     <dependencies>
         <dependency>
@@ -54,9 +55,9 @@
             <version>${mapstruct.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
