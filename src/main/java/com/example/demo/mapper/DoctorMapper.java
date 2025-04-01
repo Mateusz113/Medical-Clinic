@@ -33,14 +33,4 @@ public interface DoctorMapper {
     default SimpleFacilityDTO getSimpleFacilityDTO(Facility facility) {
         return Mappers.getMapper(FacilityMapper.class).toSimpleDTO(facility);
     }
-
-    @AfterMapping
-    default void initDoctorCollections(@MappingTarget Doctor doctor) {
-        if (isNull(doctor.getFacilities())) {
-            doctor.setFacilities(new HashSet<>());
-        }
-        if (isNull(doctor.getVisits())) {
-            doctor.setVisits(new HashSet<>());
-        }
-    }
 }

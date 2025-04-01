@@ -39,6 +39,7 @@ public class Doctor {
     private String firstName;
     private String lastName;
     private String specialization;
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "FACILITIES_DOCTORS",
@@ -46,6 +47,7 @@ public class Doctor {
             inverseJoinColumns = @JoinColumn(name = "facility_id")
     )
     private Set<Facility> facilities = new HashSet<>();
+    @Builder.Default
     @OneToMany(mappedBy = "doctor")
     private Set<Visit> visits = new HashSet<>();
 
