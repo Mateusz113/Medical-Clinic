@@ -36,6 +36,7 @@ public class Facility {
     private String zipCode;
     private String street;
     private String buildingNumber;
+    @Builder.Default
     @ManyToMany(mappedBy = "facilities", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Doctor> doctors = new HashSet<>();
 
