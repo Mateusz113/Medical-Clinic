@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PreRemove;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +47,13 @@ public class Facility {
         this.zipCode = updateFacilityCommand.zipCode();
         this.street = updateFacilityCommand.street();
         this.buildingNumber = updateFacilityCommand.buildingNumber();
+    }
+
+    @PreRemove
+    private void cleanDoctors() {
+        for (Doctor doctor : doctors) {
+            doctor.removeFacility(this);
+        }
     }
 
     @Override
