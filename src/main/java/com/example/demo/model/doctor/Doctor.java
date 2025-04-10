@@ -63,6 +63,10 @@ public class Doctor {
         facilities.add(facility);
     }
 
+    public void removeFacility(Facility facility) {
+        facilities.remove(facility);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
