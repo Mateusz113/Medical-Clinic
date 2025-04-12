@@ -3,7 +3,9 @@ package com.example.demo.service;
 import com.example.demo.command.visit.InsertVisitCommand;
 import com.example.demo.exception.doctor.DoctorNotFoundException;
 import com.example.demo.exception.patient.PatientNotFoundException;
+import com.example.demo.exception.visit.VisitIllegalDataException;
 import com.example.demo.exception.visit.VisitNotFoundException;
+import com.example.demo.filter.visit.VisitFilter;
 import com.example.demo.mapper.VisitMapper;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.Doctor;
@@ -13,15 +15,18 @@ import com.example.demo.model.visit.VisitDTO;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.PatientRepository;
 import com.example.demo.repository.VisitRepository;
+import com.example.demo.specification.VisitSpecification;
 import com.example.demo.validator.VisitValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,19 +47,13 @@ public class VisitService {
         return visitMapper.toDto(visit);
     }
 
-    public PageableContentDto<VisitDTO> getAllVisits(Pageable pageable) {
-        Page<Visit> visits = visitRepository.findAll(pageable);
-        return createPageableContentDto(visits, pageable);
-    }
-
-    public PageableContentDto<VisitDTO> getDoctorVisits(Long doctorId, Pageable pageable) {
-        Page<Visit> visits = visitRepository.findAllByDoctorId(doctorId, pageable);
-        return createPageableContentDto(visits, pageable);
-    }
-
-    public PageableContentDto<VisitDTO> getPatientVisits(Long patientId, Pageable pageable) {
-        Page<Visit> visits = visitRepository.findAllByPatientId(patientId, pageable);
-        return createPageableContentDto(visits, pageable);
+    public PageableContentDto<VisitDTO> getVisits(VisitFilter visitFilter, Pageable pageable) {
+        if (Objects.isNull(visitFilter)) {
+            throw new VisitIllegalDataException("Filter for visit is null.", OffsetDateTime.now(clock));
+        }
+        Specification<Visit> visitQuerySpecification = VisitSpecification.constructVisitSpecification(visitFilter, clock);
+        Page<Visit> visitPage = visitRepository.findAll(visitQuerySpecification, pageable);
+        return createPageableContentDto(visitPage, pageable);
     }
 
     @Transactional
