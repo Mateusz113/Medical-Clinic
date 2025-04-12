@@ -133,7 +133,7 @@ public class VisitControllerTest {
         long doctorId = 1;
         PageableContentDto<VisitDTO> pageableContentDto = buildFullPageableContentDto();
         Pageable pageable = PageRequest.of(0, 10);
-        when(visitService.getDoctorVisits(doctorId, pageable)).thenReturn(pageableContentDto);
+        when(visitService.getDoctorVisits(doctorId, pageable, false)).thenReturn(pageableContentDto);
         mockMvc.perform(get("/visits/doctorId/1")
                         .param("page", "0")
                         .param("size", "10"))
