@@ -1,7 +1,10 @@
 package com.example.demo.filter.visit;
 
+import lombok.Builder;
+
 import java.time.OffsetDateTime;
 
+@Builder
 public record VisitFilter(
         Long visitId,
         Long doctorId,
