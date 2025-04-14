@@ -30,9 +30,6 @@ public class VisitValidator {
     }
 
     public static void validateVisitQueryTimes(OffsetDateTime startTime, OffsetDateTime endTime, Clock clock) {
-        if (startTime != null && startTime.isBefore(OffsetDateTime.now(clock))) {
-            throw new VisitIllegalDataException("There are no available visits in the past.", OffsetDateTime.now(clock));
-        }
         if (endTime != null && endTime.isBefore(OffsetDateTime.now(clock))) {
             throw new VisitIllegalDataException("There are no available visits in the past.", OffsetDateTime.now(clock));
         }
