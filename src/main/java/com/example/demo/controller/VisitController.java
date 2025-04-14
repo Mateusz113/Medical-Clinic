@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.command.visit.InsertVisitCommand;
+import com.example.demo.filter.visit.VisitFilter;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.visit.VisitDTO;
 import com.example.demo.service.VisitService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,23 +32,13 @@ public class VisitController {
     }
 
     @GetMapping
-    public PageableContentDto<VisitDTO> getAllVisits(Pageable pageable) {
-        return visitService.getAllVisits(pageable);
-    }
-
-    @GetMapping("/doctorId/{doctorId}")
-    public PageableContentDto<VisitDTO> getDoctorVisits(@PathVariable("doctorId") Long doctorId, Pageable pageable) {
-        return visitService.getDoctorVisits(doctorId, pageable);
-    }
-
-    @GetMapping("/patientId/{patientId}")
-    public PageableContentDto<VisitDTO> getPatientVisits(@PathVariable("patientId") Long patientId, Pageable pageable) {
-        return visitService.getPatientVisits(patientId, pageable);
+    public PageableContentDto<VisitDTO> getVisits(VisitFilter visitFilter, Pageable pageable) {
+        return visitService.getVisits(visitFilter, pageable);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/{id}/patientId/{patientId}")
-    public void registerPatientToVisit(@PathVariable("id") Long visitId, @PathVariable("patientId") Long patientId) {
+    @PatchMapping("/{visitId}/patient/{patientId}")
+    public void registerPatientToVisit(@PathVariable("visitId") Long visitId, @PathVariable("patientId") Long patientId) {
         visitService.registerPatientToVisit(visitId, patientId);
     }
 
