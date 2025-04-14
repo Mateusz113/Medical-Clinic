@@ -37,8 +37,8 @@ public class VisitController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/{id}/patient")
-    public void registerPatientToVisit(@PathVariable("id") Long visitId, @RequestParam("patientId") Long patientId) {
+    @PatchMapping("/{visitId}/patient/{patientId}")
+    public void registerPatientToVisit(@PathVariable("visitId") Long visitId, @PathVariable("patientId") Long patientId) {
         visitService.registerPatientToVisit(visitId, patientId);
     }
 
