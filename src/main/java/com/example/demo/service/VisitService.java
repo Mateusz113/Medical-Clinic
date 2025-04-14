@@ -51,6 +51,7 @@ public class VisitService {
         if (Objects.isNull(visitFilter)) {
             throw new VisitIllegalDataException("Filter for visit is null.", OffsetDateTime.now(clock));
         }
+        VisitValidator.validateVisitQueryTimes(visitFilter.startTime(), visitFilter.endTime(), clock);
         Specification<Visit> visitQuerySpecification = VisitSpecification.constructVisitSpecification(visitFilter, clock);
         Page<Visit> visitPage = visitRepository.findAll(visitQuerySpecification, pageable);
         return createPageableContentDto(visitPage, pageable);
