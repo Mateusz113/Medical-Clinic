@@ -251,7 +251,7 @@ public class VisitServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         when(visitRepository.findAllByDoctorId(doctorId, pageable)).thenReturn(Page.empty());
         //when
-        PageableContentDto<VisitDTO> result = visitService.getDoctorVisits(doctorId, pageable);
+        PageableContentDto<VisitDTO> result = visitService.getDoctorVisits(doctorId, pageable, false);
         //then
         assertEquals(0, result.totalEntries());
         assertEquals(1, result.totalNumberOfPages());
@@ -272,7 +272,7 @@ public class VisitServiceTest {
         PatientDTO expectedPatient = buildPatientDto();
         when(visitRepository.findAllByDoctorId(doctorId, pageable)).thenReturn(page);
         //when
-        PageableContentDto<VisitDTO> result = visitService.getDoctorVisits(doctorId, pageable);
+        PageableContentDto<VisitDTO> result = visitService.getDoctorVisits(doctorId, pageable, false);
         //then
         assertEquals(2, result.totalEntries());
         assertEquals(1, result.totalNumberOfPages());

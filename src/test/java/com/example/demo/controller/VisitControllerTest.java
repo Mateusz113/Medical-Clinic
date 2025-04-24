@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.command.visit.InsertVisitCommand;
+import com.example.demo.filter.visit.VisitFilter;
 import com.example.demo.model.PageableContentDto;
 import com.example.demo.model.doctor.SimpleDoctorDTO;
 import com.example.demo.model.patient.PatientDTO;
@@ -40,7 +41,7 @@ public class VisitControllerTest {
     private VisitService visitService;
 
     @Test
-    public void createVisit_DataIsCorrect_ReturnsVisitDtoWithStatus201() throws Exception {
+    public void createVisit_ReturnsVisitDtoWithStatus201() throws Exception {
         InsertVisitCommand insertVisitCommand = buildInsertVisitCommand();
         VisitDTO visitDTO = buildVisitDto();
         when(visitService.createVisit(insertVisitCommand)).thenReturn(visitDTO);
@@ -67,10 +68,11 @@ public class VisitControllerTest {
     }
 
     @Test
-    public void getAllVisits_ThereAreNoVisits_ReturnsEmptyPageableContentDtoWithStatus200() throws Exception {
+    public void getVisits_ReturnsEmptyPageableContentDtoWithStatus200() throws Exception {
         PageableContentDto<VisitDTO> pageableContentDto = buildEmptyPageableContentDto();
         Pageable pageable = PageRequest.of(0, 10);
-        when(visitService.getAllVisits(pageable)).thenReturn(pageableContentDto);
+        VisitFilter visitFilter = buildVisitFilter();
+        when(visitService.getVisits(visitFilter, pageable)).thenReturn(pageableContentDto);
         mockMvc.perform(get("/visits")
                         .param("page", "0")
                         .param("size", "10"))
@@ -83,10 +85,11 @@ public class VisitControllerTest {
     }
 
     @Test
-    public void getAllVisits_ThereAreVisits_ReturnsCorrectPageableContentDtoWithStatus200() throws Exception {
+    public void getVisits_ReturnsCorrectPageableContentDtoWithStatus200() throws Exception {
         PageableContentDto<VisitDTO> pageableContentDto = buildFullPageableContentDto();
         Pageable pageable = PageRequest.of(0, 10);
-        when(visitService.getAllVisits(pageable)).thenReturn(pageableContentDto);
+        VisitFilter visitFilter = buildVisitFilter();
+        when(visitService.getVisits(visitFilter, pageable)).thenReturn(pageableContentDto);
         mockMvc.perform(get("/visits")
                         .param("page", "0")
                         .param("size", "10"))
@@ -129,116 +132,26 @@ public class VisitControllerTest {
     }
 
     @Test
-    public void getDoctorVisits_ThereAreVisits_ReturnsCorrectPageableContentDtoWithStatus200() throws Exception {
-        long doctorId = 1;
-        PageableContentDto<VisitDTO> pageableContentDto = buildFullPageableContentDto();
-        Pageable pageable = PageRequest.of(0, 10);
-        when(visitService.getDoctorVisits(doctorId, pageable)).thenReturn(pageableContentDto);
-        mockMvc.perform(get("/visits/doctorId/1")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalEntries").value(2))
-                .andExpect(jsonPath("$.totalNumberOfPages").value(1))
-                .andExpect(jsonPath("$.pageNumber").value(0))
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].startTime").value("2012-12-13T12:00:00Z"))
-                .andExpect(jsonPath("$.content[0].endTime").value("2012-12-13T13:00:00Z"))
-                .andExpect(jsonPath("$.content[0].doctor.id").value(1))
-                .andExpect(jsonPath("$.content[0].doctor.email").value("email"))
-                .andExpect(jsonPath("$.content[0].doctor.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[0].doctor.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[0].doctor.specialization").value("specialization"))
-                .andExpect(jsonPath("$.content[0].patient.id").value(1))
-                .andExpect(jsonPath("$.content[0].patient.email").value("email"))
-                .andExpect(jsonPath("$.content[0].patient.idCardNo").value("idCardNo"))
-                .andExpect(jsonPath("$.content[0].patient.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[0].patient.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[0].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[0].patient.birthday").value("2012-12-12"))
-                .andExpect(jsonPath("$.content[1].id").value(1))
-                .andExpect(jsonPath("$.content[1].startTime").value("2012-12-13T12:00:00Z"))
-                .andExpect(jsonPath("$.content[1].endTime").value("2012-12-13T13:00:00Z"))
-                .andExpect(jsonPath("$.content[1].doctor.id").value(1))
-                .andExpect(jsonPath("$.content[1].doctor.email").value("email"))
-                .andExpect(jsonPath("$.content[1].doctor.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[1].doctor.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[1].doctor.specialization").value("specialization"))
-                .andExpect(jsonPath("$.content[1].patient.id").value(1))
-                .andExpect(jsonPath("$.content[1].patient.email").value("email"))
-                .andExpect(jsonPath("$.content[1].patient.idCardNo").value("idCardNo"))
-                .andExpect(jsonPath("$.content[1].patient.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[1].patient.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[1].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"));
-    }
-
-    @Test
-    public void getPatientVisits_ThereAreVisits_ReturnsCorrectPageableContentDtoWithStatus200() throws Exception {
-        long patientId = 1;
-        PageableContentDto<VisitDTO> pageableContentDto = buildFullPageableContentDto();
-        Pageable pageable = PageRequest.of(0, 10);
-        when(visitService.getPatientVisits(patientId, pageable)).thenReturn(pageableContentDto);
-        mockMvc.perform(get("/visits/patientId/1")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalEntries").value(2))
-                .andExpect(jsonPath("$.totalNumberOfPages").value(1))
-                .andExpect(jsonPath("$.pageNumber").value(0))
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].startTime").value("2012-12-13T12:00:00Z"))
-                .andExpect(jsonPath("$.content[0].endTime").value("2012-12-13T13:00:00Z"))
-                .andExpect(jsonPath("$.content[0].doctor.id").value(1))
-                .andExpect(jsonPath("$.content[0].doctor.email").value("email"))
-                .andExpect(jsonPath("$.content[0].doctor.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[0].doctor.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[0].doctor.specialization").value("specialization"))
-                .andExpect(jsonPath("$.content[0].patient.id").value(1))
-                .andExpect(jsonPath("$.content[0].patient.email").value("email"))
-                .andExpect(jsonPath("$.content[0].patient.idCardNo").value("idCardNo"))
-                .andExpect(jsonPath("$.content[0].patient.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[0].patient.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[0].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[0].patient.birthday").value("2012-12-12"))
-                .andExpect(jsonPath("$.content[1].id").value(1))
-                .andExpect(jsonPath("$.content[1].startTime").value("2012-12-13T12:00:00Z"))
-                .andExpect(jsonPath("$.content[1].endTime").value("2012-12-13T13:00:00Z"))
-                .andExpect(jsonPath("$.content[1].doctor.id").value(1))
-                .andExpect(jsonPath("$.content[1].doctor.email").value("email"))
-                .andExpect(jsonPath("$.content[1].doctor.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[1].doctor.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[1].doctor.specialization").value("specialization"))
-                .andExpect(jsonPath("$.content[1].patient.id").value(1))
-                .andExpect(jsonPath("$.content[1].patient.email").value("email"))
-                .andExpect(jsonPath("$.content[1].patient.idCardNo").value("idCardNo"))
-                .andExpect(jsonPath("$.content[1].patient.firstName").value("firstName"))
-                .andExpect(jsonPath("$.content[1].patient.lastName").value("lastName"))
-                .andExpect(jsonPath("$.content[1].patient.phoneNumber").value("phoneNumber"))
-                .andExpect(jsonPath("$.content[1].patient.birthday").value("2012-12-12"));
-    }
-
-    @Test
-    public void registerPatientToVisit_DataIsCorrect_ReturnsNoBodyWithStatus204() throws Exception {
+    public void registerPatientToVisit_ReturnsNoBodyWithStatus204() throws Exception {
         long visitId = 1;
         long patientId = 1;
-        mockMvc.perform(patch("/visits/1/patientId/1"))
+        mockMvc.perform(patch("/visits/1/patient/1"))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         verify(visitService, times(1)).registerPatientToVisit(visitId, patientId);
     }
 
     @Test
-    public void deleteVisit_VisitExists_ReturnsNoBodyWithStatus204() throws Exception {
+    public void deleteVisit_ReturnsNoBodyWithStatus204() throws Exception {
         long visitId = 1;
         mockMvc.perform(delete("/visits/1"))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         verify(visitService, times(1)).deleteVisit(visitId);
+    }
+
+    private VisitFilter buildVisitFilter() {
+        return VisitFilter.builder().build();
     }
 
     private InsertVisitCommand buildInsertVisitCommand() {

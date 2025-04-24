@@ -29,6 +29,15 @@ public class VisitValidator {
         }
     }
 
+    public static void validateVisitQueryTimes(OffsetDateTime startTime, OffsetDateTime endTime, Clock clock) {
+        if (endTime != null && endTime.isBefore(OffsetDateTime.now(clock))) {
+            throw new VisitIllegalDataException("There are no available visits in the past.", OffsetDateTime.now(clock));
+        }
+        if (startTime != null && endTime != null && endTime.isBefore(startTime)) {
+            throw new VisitIllegalDataException("End time of search window cannot be before start time.", OffsetDateTime.now(clock));
+        }
+    }
+
     private static void validateVisitDates(OffsetDateTime startTime, OffsetDateTime endTime, VisitRepository visitRepository, Doctor doctor, Clock clock) {
         if (startTime.isBefore(OffsetDateTime.now(clock))) {
             throw new VisitIllegalDataException("The visit cannot be set in the past.", OffsetDateTime.now(clock));
